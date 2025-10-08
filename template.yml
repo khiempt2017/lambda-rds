@@ -19,6 +19,15 @@ Parameters:
     Type: String
     Description: ProjectId used to associate new resources to team members
     Default: lambda-rds
+  PublicSubnet1:
+    Type: String
+    Description: Public subnet 1
+  PublicSubnet2:
+    Type: String
+    Description: Public subnet 2
+  SecurityGroupId:
+    Type: String
+    Description: Security group id
 Conditions:
   IsProduction: !Equals [ !Ref Stage, prod ]
   IsProdOrStg: 
@@ -124,10 +133,10 @@ Resources:
             RestApiId: !Ref MyRestApi
       VpcConfig:
         SecurityGroupIds: 
-          - Fn::Sub: "${ProjectId}-${Stage}-security-group" #get from vpc terraform
+          - !Ref SecurityGroupId #get from vpc terraform
         SubnetIds:
-          - Fn::Sub: "${ProjectId}-${Stage}-public_subnet-1" #get from vpc terraform
-          - Fn::Sub: "${ProjectId}-${Stage}-public_subnet-2" #get from vpc terraform
+          - !Ref PublicSubnet1 #get from vpc terraform
+          - !Ref PublicSubnet2 #get from vpc terraform
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
