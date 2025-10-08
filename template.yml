@@ -19,12 +19,14 @@ Parameters:
     Type: String
     Description: ProjectId used to associate new resources to team members
     Default: lambda-rds
-  PublicSubnet1:
+  PublicSubNetId1:
     Type: String
     Description: Public subnet 1
-  PublicSubnet2:
+    Default: subnet-1
+  PublicSubNetId2:
     Type: String
     Description: Public subnet 2
+    Default: subnet-2
   SecurityGroupId:
     Type: String
     Description: Security group id
