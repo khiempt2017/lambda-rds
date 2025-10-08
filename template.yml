@@ -18,7 +18,7 @@ Parameters:
   ProjectId:
     Type: String
     Description: ProjectId used to associate new resources to team members
-    Default: BP-api-serverless
+    Default: lambda-rds
 Conditions:
   IsProduction: !Equals [ !Ref Stage, prod ]
   IsProdOrStg: 
