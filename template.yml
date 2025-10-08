@@ -45,11 +45,11 @@ Globals:
       Variables:
         STAGE: !Ref Stage
         REGION: !Ref AWS::Region
-        MYSQL_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-host}}'
-        MYSQL_PORT: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-port}}'
-        MYSQL_DATABASE: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-database}}'
-        MYSQL_USER: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-user}}'
-        MYSQL_PASSWORD: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-password}}'
+        MYSQL_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:MYSQL_HOST}}'
+        MYSQL_PORT: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:MYSQL_PORT}}'
+        MYSQL_DATABASE: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:MYSQL_DATABASE}}'
+        MYSQL_USER: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:MYSQL_USER}}'
+        MYSQL_PASSWORD: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:MYSQL_PASSWORD}}'
     AutoPublishAlias: live
     Tags:
       Name: !Ref ProjectId
