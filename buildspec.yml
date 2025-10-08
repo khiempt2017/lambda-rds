@@ -9,18 +9,6 @@ phases:
       - npm install --prefix ./src-layers
   pre_build:
     commands:
-      #Get common secret
-      - export COMMON_SECRET=$(aws secretsmanager get-secret-value --secret-id BP-api-serverless-common-secrets --query 'SecretString' --output text)
-      #Get environment secret
-      - export ENVIRONMENT_SECRET=$(aws secretsmanager get-secret-value --secret-id BP-api-serverless-$ENVIRONMENT-secrets --query 'SecretString' --output text)
-      # Get S3 bucket name
-      - export AWS_BUCKET_S3_CSV=$(echo $ENVIRONMENT_SECRET | jq -r '."aws-bucket-s3-csv"')
-      - echo "AWS_BUCKET_S3_CSV:$AWS_BUCKET_S3_CSV"
-      # Get base64 api key
-      - export BASE64_API_KEY=$(echo $COMMON_SECRET | jq -r '."base64-api-key"')
-      # Get project id
-      - export PROJECT_ID=$(echo $COMMON_SECRET | jq -r '."project-id"')
-      - echo "PROJECT_ID:$PROJECT_ID"
   build:
     commands:
       - npm run build
@@ -30,22 +18,10 @@ phases:
         mkdir dist/src/api-send_email_batch
         mkdir -p dist/src-layers/public
         mkdir -p dist/src-layers/resources
-    
-      # Copy layer files
-      - cp -r src-layers/package*.json dist/src-layers/nodejs/
-      - cp -a src-layers/batch/send_email_batch.js dist/src/api-send_email_batch
-      - cp -a src-layers/public/* dist/src-layers/public/
-      - cd dist/src-layers/nodejs && npm install && cd -
-      - cp -a src-layers/resources/* dist/src-layers/resources/
-      # Skip audit temporarily - fix vulnerabilities later
-      - cd src-layers && npm audit fix --force && npm audit && cd -
-      # - npx jest --coverage
-      # Verify the files exist
-      - ls -la dist/src/api-send_email_batch
       
       # Create the S3 bucket if it does not exist
       - |
-        BUCKET_NAME="bp-api-serverless-$REGION-$ENVIRONMENT-packaged-2086"
+        BUCKET_NAME="lambda-rds-$REGION-$ENVIRONMENT-packaged-2086"
         if ! aws s3api head-bucket --bucket $BUCKET_NAME 2>/dev/null; then
           echo "Bucket does not exist. Creating bucket: $BUCKET_NAME"
           aws s3 mb s3://$BUCKET_NAME
@@ -56,41 +32,8 @@ phases:
       # Use AWS SAM to package the application using AWS CloudFormation
       - aws cloudformation package --template-file template.yml --s3-bucket $BUCKET_NAME --output-template-file packaged-template.yml
 
-      # Function to handle Docker image build and push
-      - |
-          REPOSITORY_NAME="bp-api-serverless-$ENVIRONMENT-batch"
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          echo "AWS Account ID: $ACCOUNT_ID"
-  
-          echo $REGION
-          IMAGE_URI="${ACCOUNT_ID}.dkr.ecr.$REGION.amazonaws.com/${REPOSITORY_NAME}:latest"
-  
-          # Login to ECR
-          aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.$REGION.amazonaws.com
-  
-          # Check if repository exists, if not, create it
-          if ! aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region $REGION >/dev/null 2>&1; then
-            echo "Creating repository: ${REPOSITORY_NAME}"
-            aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region $REGION
-          else
-            echo "Repository already exists: ${REPOSITORY_NAME}"
-          fi
-  
-          # Build and push Docker image
-          docker build --build-arg REGION=$REGION --build-arg BASE64_API_KEY=$BASE64_API_KEY --build-arg ENVIRONMENT=$ENVIRONMENT --build-arg AWS_BUCKET_S3_CSV=$AWS_BUCKET_S3_CSV --build-arg PROJECT_ID=$PROJECT_ID -t ${REPOSITORY_NAME}:latest src-layers/batch
-          docker tag ${REPOSITORY_NAME}:latest ${IMAGE_URI}
-          docker push ${IMAGE_URI}
-
   post_build:
     commands:
-      - echo "=== FINAL BUILD SUMMARY ==="
-      - echo "Lambda Layer Size Check:"
-      - if [ -d "dist/src-layers/nodejs" ]; then echo "Layer exists and ready"; else echo "ERROR Layer directory missing"; fi
-      - echo "Estimated unzipped size:" $(du -sh dist/src-layers/nodejs | cut -f1)
-      - echo "Lambda limit 250MB unzipped"
-      - LAYER_SIZE_MB=$(du -sm dist/src-layers/nodejs | cut -f1)
-      - echo "Size in MB ${LAYER_SIZE_MB}MB"
-      - if [ $LAYER_SIZE_MB -gt 250 ]; then echo "WARNING Layer size exceeds 250MB limit"; else echo "Layer size is within limits"; fi
       - echo "Build artifacts ready for deployment"
 
 artifacts:
