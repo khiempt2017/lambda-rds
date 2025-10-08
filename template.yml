@@ -1,0 +1,378 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/03/30
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: CloudFormation template for Lambda, API Gateway, DynamoDB
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+Conditions:
+  IsProduction: !Equals [ !Ref Stage, prod ]
+  IsProdOrStg: 
+    Fn::Or:
+      - Fn::Equals: [!Ref Stage, prod]
+      - Fn::Equals: [!Ref Stage, stg]
+      - Fn::Equals: [!Ref Stage, test]
+  IsDevOrStg: 
+    Fn::Or:
+      - Fn::Equals: [!Ref Stage, dev]
+      - Fn::Equals: [!Ref Stage, stg]
+      - Fn::Equals: [!Ref Stage, test]
+Globals:
+  Api:
+    OpenApiVersion: 3.0.1
+  Function:
+    Runtime: nodejs22.x
+    MemorySize: 512
+    Timeout: 300
+    Tracing: Active
+    Layers:
+      - !Ref SrcLayer
+    Environment:
+      Variables:
+        STAGE: !Ref Stage
+        REGION: !Ref AWS::Region
+        AWS_COGNITO_USER_POOL_ID: 
+          !If
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:user-pool-id}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:user-pool-id}}'
+        AWS_COGNITO_REGION: 
+          !If
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:cognito-region}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:cognito-region}}'
+        OGSC_URL: 
+          !If
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:ogsc-cognito-url}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:ogsc-cognito-url}}'
+        APP_KEY: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:app-key}}'
+        PROJECT_ID: !Ref ProjectId
+        X_KII_APP_KEY: !If
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:x-kii-app-key}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:x-kii-app-key}}'
+        X_KII_APP_ID: !If 
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:x-kii-app-id}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:x-kii-app-id}}'
+        OGSC_ADMIN_USERNAME: !If 
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:ogsc-admin-user-name}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:ogsc-admin-user-name}}'
+        OGSC_ADMIN_PASSWORD: !If 
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:ogsc-admin-password}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:ogsc-admin-password}}'
+        TOKEN_OGSC_URL: !If 
+          - IsDevOrStg
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:token-ogsc-url}}'
+          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:token-ogsc-url}}'
+        AWS_BUCKET_S3_CSV: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:aws-bucket-s3-csv}}'
+        AWS_ACCOUNT_ID: !Ref AWS::AccountId
+        SMTP_USER: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-user}}'
+        SMTP_PASSWORD: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-password}}'
+        SMTP_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-host}}'
+        SMTP_PORT: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-port}}'
+        MAIL_FROM: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:mail-from}}'
+        BP_STATIC_URL: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:bp-static-url}}'
+        APP_URL: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:app-url}}'
+        CLIENT_ID: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:client-id}}'
+        CLIENT_SECRET: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:client-secret}}'
+        REDIRECT_URI: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:redirect-uri}}'
+        BP_API_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:domain-name}}'
+        DB_TYPE: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:db-type}}'
+        MYSQL_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-host}}'
+        MYSQL_PORT: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-port}}'
+        MYSQL_DATABASE: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-database}}'
+        MYSQL_USER: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-user}}'
+        MYSQL_PASSWORD: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-password}}'
+        MYSQL_CONNECTION_LIMIT: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:mysql-connection-limit}}'
+        MYSQL_TIMEZONE: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:mysql-timezone}}'
+    AutoPublishAlias: live
+    Tags:
+      Name: !Ref ProjectId
+      Environment: !Ref Stage
+      ProjectId: !Ref ProjectId
+      
+Resources:
+  ApiGwAccountConfig:
+    Type: "AWS::ApiGateway::Account"
+    Properties:
+      CloudWatchRoleArn: !GetAtt "ApiGatewayLoggingRole.Arn"
+
+  ApiGatewayLoggingRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+
+  SrcLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub ${ProjectId}-${Stage}-src-layers
+      Description: Our managed service project leverages the Lambda layer to apply customized logic and analysis of high volume data
+      ContentUri: dist/src-layers/
+      CompatibleRuntimes:
+        - nodejs22.x
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
+
+  MyRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${ProjectId}-${Stage}"
+      StageName: !Ref Stage
+      Description:
+      MethodSettings:
+        - LoggingLevel: INFO
+          ResourcePath: '/*' # Allows for logging on any resource
+          HttpMethod: '*' # Allows for logging on any method
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        AllowOrigin: "'*'"
+      
+  Greetings:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-get-greetings'
+      CodeUri: ./dist/src/api-get-greetings
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/get-greetings
+            Method: get
+            RestApiId: !Ref MyRestApi
+  
+  LambdaExecutionRole:
+    Description: Creating service role in IAM for AWS Lambda
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "Lambda-${ProjectId}-${AWS::Region}-${Stage}-${AWS::AccountId}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ lambda.amazonaws.com, backup.amazonaws.com]
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - !Sub "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - !Sub "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+        - !Sub "arn:aws:iam::aws:policy/AmazonSESFullAccess"
+        - !Sub "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        - !Sub "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+      Policies:
+        - PolicyName: LambdaVpcAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                  - backup:*
+                  - iam:PassRole
+                  - kms:*
+                  - elasticfilesystem:*
+                  - batch:*
+                Resource: "*"
+
+  MailsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "BPDiary-mails_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: "user_id"
+          AttributeType: "S"
+        - AttributeName: "record_id"
+          AttributeType: "N"
+        - AttributeName: "created_at"
+          AttributeType: "S"
+        - AttributeName: "authkey"
+          AttributeType: "S"
+        - AttributeName: "is_self"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "user_id"
+          KeyType: "HASH"   # Primary partition key
+        - AttributeName: "record_id"
+          KeyType: "RANGE"  # Primary sort key
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: "authkey_index"
+          KeySchema:
+            - AttributeName: "authkey"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "user_created_at_index"
+          KeySchema:
+            - AttributeName: "user_id"
+              KeyType: "HASH"
+            - AttributeName: "created_at"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "user_is_self_index"
+          KeySchema:
+            - AttributeName: "user_id"
+              KeyType: "HASH"
+            - AttributeName: "is_self"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  RegularReportTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: !Sub "BPDiary-regular_report_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: logout_flg
+          AttributeType: N
+        - AttributeName: auto_send
+          AttributeType: N
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: logout_flg_auto_send_index
+          KeySchema:
+            - AttributeName: logout_flg
+              KeyType: HASH
+            - AttributeName: auto_send
+              KeyType: RANGE
+          Projection:
+            ProjectionType: "ALL"
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  DiariesTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: !Sub "BPDiary-diaries_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  BannerManagementTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: !Sub "BPDiary-banner_management_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: banner_category
+          AttributeType: N
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+        - AttributeName: banner_category
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  CommonSettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: !Sub "BPDiary-common_settings_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: common_key
+          AttributeType: S
+      KeySchema:
+        - AttributeName: common_key
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  MemoOrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "BPDiary-memo_orders_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  SettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "BPDiary-settings_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+
+  WithdrawalUserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "BPDiary-withdrawal_user_${Stage}"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: !If [IsProdOrStg, Retain, Delete]
+    
+Outputs:
+  ApiEndpoint:
+    Description: "API endpoint"
+    Value: !Sub "https://${MyRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+  MyRestApiArn:
+    Value: !Ref MyRestApi
+    Export:
+      Name: !Sub "${AWS::Region}-${Stage}-RestApiArn"

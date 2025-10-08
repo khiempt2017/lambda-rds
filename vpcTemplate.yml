@@ -1,0 +1,389 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/03/30
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for VPC
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+Resources:
+  serverlessdevVpc1A0543AE:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-vpc
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/Resource
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet1SubnetE305421A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub ${AWS::Region}a
+      CidrBlock: 10.1.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: !Sub BP-api-serverless-${Stage}-public-subnet-1
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-public-subnet-1-${AWS::Region}a
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet1/Subnet
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet1RouteTable6127C16D:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub RT-BP-api-serverless-${Stage}-public-subnet-1-${AWS::Region}a
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet1/RouteTable
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet1RouteTableAssociationE1F28E4E:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet1RouteTable6127C16D
+      SubnetId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet1SubnetE305421A
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet1/RouteTableAssociation
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet1DefaultRoute360DA870:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: serverlessdevVpcIGWE090C487
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet1RouteTable6127C16D
+    DependsOn:
+      - serverlessdevVpcVPCGWB43AF2B0
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet1/DefaultRoute
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet1EIPED480938:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-EIP
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet1/EIP
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet1NATGateway8227EC56:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - serverlessdevVpcserverlessdevpublicsubnet1Subnet1EIPED480938
+          - AllocationId
+      SubnetId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet1SubnetE305421A
+      Tags:
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-NAT
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+    DependsOn:
+      - serverlessdevVpcserverlessdevpublicsubnet1Subnet1DefaultRoute360DA870
+      - serverlessdevVpcserverlessdevpublicsubnet1Subnet1RouteTableAssociationE1F28E4E
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet1/NATGateway
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet2Subnet09E2A459:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub ${AWS::Region}c
+      CidrBlock: 10.1.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: !Sub BP-api-serverless-${Stage}-public-subnet-1
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-public-subnet-1-${AWS::Region}c
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet2/Subnet
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet2RouteTable9A6C39A6:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub RT-BP-api-serverless-${Stage}-public-subnet-1-${AWS::Region}c
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet2/RouteTable
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet2RouteTableAssociation2818412D:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet2RouteTable9A6C39A6
+      SubnetId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet2Subnet09E2A459
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet2/RouteTableAssociation
+  serverlessdevVpcserverlessdevpublicsubnet1Subnet2DefaultRouteFB4423AD:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: serverlessdevVpcIGWE090C487
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet2RouteTable9A6C39A6
+    DependsOn:
+      - serverlessdevVpcVPCGWB43AF2B0
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-public-subnet-1Subnet2/DefaultRoute
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet1Subnet5616A919:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub ${AWS::Region}a
+      CidrBlock: 10.1.2.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: !Sub BP-api-serverless-${Stage}-private-subnet-1
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-private-subnet-1-${AWS::Region}a
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet1/Subnet
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet1RouteTableFDF2EBD9:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub RT-BP-api-serverless-${Stage}-private-subnet-1-${AWS::Region}a
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet1/RouteTable
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet1RouteTableAssociationF4D356C6:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevprivatesubnet1Subnet1RouteTableFDF2EBD9
+      SubnetId:
+        Ref: serverlessdevVpcserverlessdevprivatesubnet1Subnet1Subnet5616A919
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet1/RouteTableAssociation
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet1DefaultRoute40AC427E:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet1NATGateway8227EC56
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevprivatesubnet1Subnet1RouteTableFDF2EBD9
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet1/DefaultRoute
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet2Subnet31D27E47:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub ${AWS::Region}c
+      CidrBlock: 10.1.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: !Sub BP-api-serverless-${Stage}-private-subnet-1
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-private-subnet-1-${AWS::Region}c
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet2/Subnet
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet2RouteTable805D5637:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub RT-BP-api-serverless-${Stage}-private-subnet-1-${AWS::Region}c
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet2/RouteTable
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet2RouteTableAssociationDBF0F729:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevprivatesubnet1Subnet2RouteTable805D5637
+      SubnetId:
+        Ref: serverlessdevVpcserverlessdevprivatesubnet1Subnet2Subnet31D27E47
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet2/RouteTableAssociation
+  serverlessdevVpcserverlessdevprivatesubnet1Subnet2DefaultRouteD3CF4998:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: serverlessdevVpcserverlessdevpublicsubnet1Subnet1NATGateway8227EC56
+      RouteTableId:
+        Ref: serverlessdevVpcserverlessdevprivatesubnet1Subnet2RouteTable805D5637
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/serverless-dev-private-subnet-1Subnet2/DefaultRoute
+  serverlessdevVpcIGWE090C487:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub BP-api-serverless-${Stage}-IG
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/IGW
+  serverlessdevVpcVPCGWB43AF2B0:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: serverlessdevVpcIGWE090C487
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-Vpc/VPCGW
+  
+  serverlessdevBatchInstanceRole44E14C2F:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: batch.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSBatchServiceRole
+      RoleName: !Sub BP-api-serverless-${AWS::Region}-${Stage}-aws-batch-role
+      Tags:
+        - Key: ProjectID
+          Value: !Sub ${AWS::Region}-${Stage}
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-BatchInstanceRole/Resource
+  serverlessdevSecurityGroup0F325F96:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for the batch job
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${Stage}
+      VpcId:
+        Ref: serverlessdevVpc1A0543AE
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-SecurityGroup/Resource
+  serverlessdevBatchEcsRole0F5A56C9:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: !Sub Policy-${AWS::Region}-${Stage}-invoke-lambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+        - PolicyName: !Sub Policy-${AWS::Region}-${Stage}-DynamoDB
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                  - iam:PassRole
+                  - s3:*
+                Resource: "*"
+        - PolicyName: !Sub Policy-${AWS::Region}-${Stage}-logs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: "*"
+      RoleName: !Sub BP-api-serverless-${AWS::Region}-${Stage}-ecs-batch-role
+      Tags:
+        - Key: ProjectID
+          Value: !Sub BP-api-serverless-${AWS::Region}-${Stage}
+    Metadata:
+      aws:cdk:path: CdkInitStack/serverless-dev-BatchEcsRole/Resource
+Outputs:
+  VpcID:
+    Description: The ID of the VPC
+    Value:
+      Ref: serverlessdevVpc1A0543AE
+  SecurityGroupId:
+    Value: !Ref serverlessdevSecurityGroup0F325F96
+    Export:
+      Name: !Sub ${AWS::Region}-${Stage}-security-group-id
+  PrivateSubnetID1:
+    Value: !Ref serverlessdevVpcserverlessdevprivatesubnet1Subnet1Subnet5616A919
+    Export:
+      Name: !Sub ${AWS::Region}-${Stage}-private-subnet-id-1
+  PrivateSubnetID2:
+    Value: !Ref serverlessdevVpcserverlessdevprivatesubnet1Subnet2Subnet31D27E47
+    Export:
+      Name: !Sub ${AWS::Region}-${Stage}-private-subnet-id-2
+

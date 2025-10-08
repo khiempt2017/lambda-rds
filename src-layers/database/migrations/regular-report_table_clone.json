@@ -1,0 +1,46 @@
+{
+  "TableName": "BPDiary-regular_report_clone_local",
+  "AttributeDefinitions": [
+    { "AttributeName": "user_id", "AttributeType": "S" },
+    { "AttributeName": "logout_flg", "AttributeType": "N" },
+    { "AttributeName": "auto_send", "AttributeType": "N" },
+    { "AttributeName": "status", "AttributeType": "N" }
+  ],
+  "KeySchema": [
+    { "AttributeName": "user_id", "KeyType": "HASH" }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "logout_flg_auto_send_index",
+      "KeySchema": [
+        { "AttributeName": "logout_flg", "KeyType": "HASH" },
+        { "AttributeName": "auto_send", "KeyType": "RANGE" }
+      ],
+      "Projection": {
+        "ProjectionType": "INCLUDE",
+        "NonKeyAttributes": ["user_id"]
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+      }
+    },
+    {
+      "IndexName": "status_index",
+      "KeySchema": [
+        { "AttributeName": "status", "KeyType": "HASH" }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+      }
+    }
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 5,
+    "WriteCapacityUnits": 5
+  }
+}

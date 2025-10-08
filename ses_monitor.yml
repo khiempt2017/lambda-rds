@@ -1,0 +1,70 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/08/04
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for CloudWatch Metric Filters and Alarms
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: prod
+    AllowedValues:
+      - prod
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+
+Resources:
+  # SES Reputation Monitoring Alarms
+  SESBounceRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-ses-bounce-rate-alarm'
+      MetricName: 'Reputation.BounceRate'
+      Namespace: 'AWS/SES'
+      Statistic: Average
+      Period: 300  # 5 minutes
+      EvaluationPeriods: 1
+      Threshold: 0.04  # 4%
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmDescription: 'SES Bounce Rate is >= 4%'
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  SESComplaintRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-ses-complaint-rate-alarm'
+      MetricName: 'Reputation.ComplaintRate'
+      Namespace: 'AWS/SES'
+      Statistic: Average
+      Period: 300  # 5 minutes
+      EvaluationPeriods: 1
+      Threshold: 0.001  # 0.1%
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmDescription: 'SES Complaint Rate is >= 0.1%'
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  SESRejectAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-ses-reject-alarm'
+      MetricName: 'Reject'
+      Namespace: 'AWS/SES'
+      Statistic: Sum
+      Period: 3600  # 1 hour
+      EvaluationPeriods: 1
+      Threshold: 10  
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmDescription: 'SES Reject count > 10 emails per hour'
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn" 

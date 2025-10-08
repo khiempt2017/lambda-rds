@@ -1,0 +1,4 @@
+dist/*
+jest.config.ts
+.eslintrc.js
+jest-dynamodb-config.js

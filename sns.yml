@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for SNS Topics and Email Subscriptions
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+      - performance
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+
+Resources:
+  CloudWatchAlarmsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${ProjectId}-${Stage}-cloudwatch-alarms-topic'
+      DisplayName: !Sub '${ProjectId} ${Stage} CloudWatch Alarms'
+      
+  CloudWatchAlarmsEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref CloudWatchAlarmsTopic
+      Protocol: email
+      Endpoint: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:alarms-email}}'
+
+Outputs:
+  CloudWatchAlarmsTopicArn:
+    Description: "ARN of the CloudWatch Alarms SNS Topic"
+    Value: !Ref CloudWatchAlarmsTopic
+    Export:
+      Name: !Sub "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"

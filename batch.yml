@@ -1,0 +1,248 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/03/30
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for batch
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+      - performance
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+    AllowedValues:
+      - BP-api-serverless
+
+Resources:
+  # Batch delete withdrawal user
+  DeleteWithdrawalJobLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/batch/${ProjectId}-${Stage}-delete_withdrawal_user_job"
+  DeleteWithdrawalComputeEnvironment:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      ComputeEnvironmentName: !Sub ${ProjectId}-${Stage}-batch-delete-withdrawal-user-compute
+      ComputeResources:
+        MaxvCpus: 5
+        SecurityGroupIds:
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-security-group-id"
+        Subnets:
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-private-subnet-id-1"
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-private-subnet-id-2"
+        Type: FARGATE
+      ServiceRole:
+        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-aws-batch-role"
+      State: ENABLED
+      Tags:
+        ProjectID: !Sub BP-api-serverless-${Stage}-ComputeEnvironment
+      Type: MANAGED
+  DeleteWithdrawalJobQueue:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref DeleteWithdrawalComputeEnvironment
+          Order: 1
+      Priority: 1
+      State: ENABLED
+      JobQueueName: !Sub ${ProjectId}-${Stage}-batch-delete_withdrawal_user-execution-job-queue
+      Tags:
+        ProjectID: !Sub ${ProjectId}-${Stage}-JobQueue
+  DeleteWithdrawalJobDefinition:
+    Type: AWS::Batch::JobDefinition
+    Properties:
+      ContainerProperties:
+        Command:
+          - node
+          - delete_withdrawal_user_batch.js
+        ExecutionRoleArn:
+          Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-ecs-batch-role"
+        Image: 
+          Fn::Join:
+            - ""
+            - - !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.
+              - Ref: AWS::URLSuffix
+              - !Sub /bp-api-serverless-${Stage}-batch:latest
+        JobRoleArn:
+          Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-ecs-batch-role"
+        RuntimePlatform:
+          CpuArchitecture: X86_64
+          OperatingSystemFamily: LINUX
+        ResourceRequirements:
+          - Type: VCPU
+            Value: "2"
+          - Type: MEMORY
+            Value: "4096"
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: !Ref DeleteWithdrawalJobLogGroup
+            awslogs-region: !Ref AWS::Region
+            awslogs-stream-prefix: !Sub "${ProjectId}-${Stage}-delete_withdrawal_user_batch"
+      JobDefinitionName: !Sub ${ProjectId}-${Stage}-batch-delete_withdrawal_user-execution-job-definition
+      PlatformCapabilities:
+        - FARGATE
+      Type: container
+      Tags:
+        ProjectID: !Sub ${ProjectId}-${Stage}-JobDefinition
+
+  # Batch export csv
+  ExportCsvJobLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/batch/${ProjectId}-${Stage}-export_csv_job"
+  ExportCsvComputeEnvironment:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      ComputeEnvironmentName: !Sub ${ProjectId}-${Stage}-batch-export_csv-compute
+      ComputeResources:
+        MaxvCpus: 10
+        SecurityGroupIds:
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-security-group-id"
+        Subnets:
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-private-subnet-id-1"
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-private-subnet-id-2"
+        Type: FARGATE
+      ServiceRole:
+        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-aws-batch-role"
+      State: ENABLED
+      Tags:
+        ProjectID: !Sub BP-api-serverless-${Stage}-export_csv-ComputeEnvironment
+      Type: MANAGED
+  ExportCsvJobQueue:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref ExportCsvComputeEnvironment
+          Order: 1
+      Priority: 1
+      State: ENABLED
+      JobQueueName: !Sub ${ProjectId}-${Stage}-batch-export_csv-execution-job-queue
+      Tags:
+        ProjectID: !Sub ${ProjectId}-${Stage}-export_csv-JobQueue
+  ExportCsvJobDefinition:
+    Type: AWS::Batch::JobDefinition
+    Properties:
+      ContainerProperties:
+        Command:
+          - node
+          - export_csv_batch.js
+        ExecutionRoleArn:
+          Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-ecs-batch-role"
+        Image: 
+          Fn::Join:
+            - ""
+            - - !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.
+              - Ref: AWS::URLSuffix
+              - !Sub /bp-api-serverless-${Stage}-batch:latest
+        JobRoleArn:
+          Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-ecs-batch-role"
+        RuntimePlatform:
+          CpuArchitecture: X86_64
+          OperatingSystemFamily: LINUX
+        ResourceRequirements:
+          - Type: VCPU
+            Value: "4"
+          - Type: MEMORY
+            Value: "8192"
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: !Ref ExportCsvJobLogGroup
+            awslogs-region: !Ref AWS::Region
+            awslogs-stream-prefix: !Sub "${ProjectId}-${Stage}-export_csv_batch"
+      JobDefinitionName: !Sub ${ProjectId}-${Stage}-batch-export_csv-execution-job-definition
+      PlatformCapabilities:
+        - FARGATE
+      Type: container
+      Tags:
+        ProjectID: !Sub ${ProjectId}-${Stage}-export_csv-JobDefinition
+  # Batch clone table report
+  CloneTableReportJobLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/batch/${ProjectId}-${Stage}-clone_table_report_job"
+  CloneTableReportComputeEnvironment:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      ComputeEnvironmentName: !Sub ${ProjectId}-${Stage}-batch-clone_table_report-compute
+      ComputeResources:
+        MaxvCpus: 10
+        SecurityGroupIds:
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-security-group-id"
+        Subnets:
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-private-subnet-id-1"
+          - !ImportValue 
+            Fn::Sub: "${AWS::Region}-${Stage}-private-subnet-id-2"
+        Type: FARGATE
+      ServiceRole:
+        Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-aws-batch-role"
+      State: ENABLED
+      Tags:
+        ProjectID: !Sub BP-api-serverless-${Stage}-clone_table_report-ComputeEnvironment
+      Type: MANAGED
+  CloneTableReportJobQueue:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref CloneTableReportComputeEnvironment
+          Order: 1
+      Priority: 1
+      State: ENABLED
+      JobQueueName: !Sub ${ProjectId}-${Stage}-batch-clone_table_report-execution-job-queue
+      Tags:
+        ProjectID: !Sub ${ProjectId}-${Stage}-clone_table_report-JobQueue
+  CloneTableReportJobDefinition:
+    Type: AWS::Batch::JobDefinition
+    Properties:
+      ContainerProperties:
+        Command:
+          - node
+          - clone_table_report_batch.js
+        ExecutionRoleArn:
+          Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-ecs-batch-role"
+        Image: 
+          Fn::Join:
+            - ""
+            - - !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.
+              - Ref: AWS::URLSuffix
+              - !Sub /bp-api-serverless-${Stage}-batch:latest
+        JobRoleArn:
+          Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/${ProjectId}-${AWS::Region}-${Stage}-ecs-batch-role"
+        RuntimePlatform:
+          CpuArchitecture: X86_64
+          OperatingSystemFamily: LINUX
+        ResourceRequirements:
+          - Type: VCPU
+            Value: "4"
+          - Type: MEMORY
+            Value: "8192"
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: !Ref CloneTableReportJobLogGroup
+            awslogs-region: !Ref AWS::Region
+            awslogs-stream-prefix: !Sub "${ProjectId}-${Stage}-clone_table_report_batch"
+      JobDefinitionName: !Sub ${ProjectId}-${Stage}-batch-clone_table_report-execution-job-definition
+      PlatformCapabilities:
+        - FARGATE
+      Type: container
+      Tags:
+        ProjectID: !Sub ${ProjectId}-${Stage}-clone_table_report-JobDefinition

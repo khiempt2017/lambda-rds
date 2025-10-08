@@ -1,0 +1,241 @@
+<%#
+  * day_mode_b_table.ejs
+  * NewBP
+  *
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<% 
+    // String value of sunday
+    const sunArr = ['Sun', '日'];
+
+    // For get corresponding rendering function
+    const targetIconRenderFunction = {
+        iconTargetAchieved: 'renderTargetAchievedIcon',
+        iconEqual: 'renderEqualOrSlightlyIcon',
+        iconHigher: 'renderHigherIcon',
+        iconMuchHigher: 'renderMuchHigherIcon',
+    };
+
+    // Position of specific area
+    let yDate = yTable + headerHeight;
+    let fixedRowHeight = 32;
+%>
+
+<%
+  // Handle both array and object cases for arrDays
+  const daysIterator = Array.isArray(arrDays) ? arrDays.entries() : Object.entries(arrDays);
+%>
+<% for (let [dayIndex, day] of daysIterator) { %>
+  <%
+    const measurementCount = Array.isArray(day.measures) ? day.measures.length : Object.keys(day.measures).length;
+    const yMiddleDate = yDate + (Math.max(measurementCount, 1) * fixedRowHeight) / 2;
+  %>
+
+  <%# Text at date column %>
+  <text transform="translate(<%= startX + 6 %> <%= yDate + fixedRowHeight / 2 + 6.5 %>)" style="font-size:9px; fill:#191919; font-family:<%= fontName %>;"><%= day.month %></text>
+  <text transform="translate(<%= startX + 42 %> <%= yDate + fixedRowHeight / 2 + 6.5 %>)" style="font-size:13px; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= day.day %></text>
+  <text transform="translate(<%= startX + 50 %> <%= yDate + fixedRowHeight / 2 + 6.5 %>)" style="font-size:9px; fill:<%= sunArr.includes(day.dayWeek) ? '#C75882' : '#000000' %>; font-family:<%= fontName %>;"><%= `(${day.dayWeek})` %></text>
+
+  <% let indexI = 0; %>
+  <% const measuresKeys = Array.isArray(day.measures) ? day.measures.map((_, i) => i) : Object.keys(day.measures); %>
+  <% for (let dateTimeIndex of measuresKeys) { %>
+    <%
+      const bp = day.measures[dateTimeIndex];
+      const yMeasurement = yDate + indexI * fixedRowHeight;
+      const yMiddleMeasurement = yMeasurement + fixedRowHeight / 2;
+    %>
+
+    <%# Icon and text at time column %>
+    <% if (bp.isMor) { %>
+        <%- renderMorIcon(startX + dateColumnWidth + 4, yMeasurement + 9, 1.2) %>
+    <% } %>
+    <% if (bp.isEve) { %>
+        <%- renderEveIcon(startX + dateColumnWidth + 4, yMeasurement + 8, 1.2) %>
+    <% } %>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth - 4 %> <%= yMiddleMeasurement + 5 %>)" style="font-size:10; fill:#3f3f3f; font-family:<%= fontName %>;" text-anchor="end"><%= bp.time %></text>
+
+    <%# Icon at mode column %>
+    <% if (['1', '4'].includes(bp.mode)) { %>
+        <%- renderModeIcon(startX + dateColumnWidth + timeColumnWidth + 8, yMeasurement + 9, 1.2) %>
+    <% } else if (checkEverning(bp.mode) === 1) { %>
+        <%- renderMoonSleepIcon(startX + dateColumnWidth + timeColumnWidth + 8, yMeasurement + 9, 1.2) %>
+    <% } %>
+
+    <%# Icon and text at SYS column %>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) / 2 + 6 %> <%= yMiddleMeasurement + 6.5 %>)" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= bp.systolic %></text>
+    <% if (targetIconRenderFunction[bp.riskIconSystolic]) { %>
+      <%- eval(targetIconRenderFunction[bp.riskIconSystolic])(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) / 2 + 8,
+        yMeasurement + 12,
+        1.2
+      ) %>
+    <% } %>
+
+    <%# Icon and text at DIA column %>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) * 3 / 2 + 6 %> <%= yMiddleMeasurement + 6.5 %>)" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= bp.diastolic %></text>
+    <% if (targetIconRenderFunction[bp.riskIconDiastolic]) { %>
+      <%- eval(targetIconRenderFunction[bp.riskIconDiastolic])(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) * 3 / 2 + 8,
+        yMeasurement + 12,
+        1.2
+      ) %>
+    <% } %>
+
+    <%# Text at pulse column %>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 4) * 2) / 2 %> <%= yMiddleMeasurement + 6.5 %>)" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="middle"><%= bp.pulse %></text>
+
+    <!-- First DOT -->
+    <%# Icon at icon column %>
+    <% if (bp.isError && !bp.isNightError) { %>
+      <%- renderMeasurementErrorIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + 4,
+        yMeasurement + 8,
+        1.2
+      ) %>
+    <% } else { %>
+      <%- renderDotIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth / 4,
+        yMiddleMeasurement,
+        1.4
+      ) %>
+    <% } %>
+
+    <!-- Second DOT -->
+    <!-- 改造BP_APP_DEV-4288 ----> 
+    
+    <!-- If D.I is irregular pulse interval, show the irregular pulse interval icon
+    Else if D.I is afib, show the afib icon
+    Else if D.I is irregular heartbeat, show the irregular heartbeat icon
+    Else, show the dot icon  -->
+    <% if (bp.isAfib && !bp.isNightError) { %>
+      <%- renderAfibIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth / 2 + 4,
+        yMeasurement + 8,
+        1.2
+      ) %>
+    <% } else if (bp.strangePulse == 1 && !bp.isNightError) { %>
+      <%- renderIrregularHeartbeatIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth / 2 + 4,
+        yMeasurement + 8,
+        1.2
+      ) %>
+    <% } else { %>
+      <%- renderDotIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth * 3 / 4,
+        yMiddleMeasurement,
+        1.4
+      ) %>
+    <% } %>
+
+      <%# End horizontal line for each measurement %>
+      <rect x="<%= startX + (indexI === measurementCount - 1 ? 0 : dateColumnWidth) %>" y="<%= yDate + (indexI + 1) * fixedRowHeight %>" width="<%= indexI === measurementCount - 1 ? tableWidth : timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth %>" height="0.65" style="fill:#ccc;"/>
+    <% 
+    indexI++; %>
+  <% } %>
+
+  <%# Empty text at time, data, icon column when sys, dia, pulse data is empty %>
+  <% if (measurementCount === 0) { %>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth - 6 %> <%= yMiddleDate + 6.5 %>)" style="font-size:10; fill:#3f3f3f; font-family:<%= fontName %>;" text-anchor="end">--:--</text>
+
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) / 2 + 6 %> <%= yMiddleDate + 6.5 %>)" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end">-</text>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) * 3 / 2 + 6 %> <%= yMiddleDate + 6.5 %>)" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end">-</text>
+    <text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + (dataColumnWidth / 3 + 4) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 4) * 2) / 2 %> <%= yMiddleDate + 6.5 %>)" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="middle">-</text>
+
+    <%- renderDotIcon(
+      startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth / 4,
+      yMiddleDate,
+      1.4
+    ) %>
+    <%- renderDotIcon(
+      startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth * 3 / 4,
+      yMiddleDate,
+      1.4
+    ) %>
+
+      <rect x="<%= startX %>" y="<%= yDate + fixedRowHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#ccc;"/>
+  <% } %>
+
+  <%# Medicines icon at medicine column %>
+  <% const medicineKeys = ['first', 'second', 'third']; %>
+  <% for (let i = 0; i < medPerDay; i++) { 
+    %>
+    <%- day.med[medicineKeys[i]]
+      ? renderActiveMedicineIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth / 2 - (medPerDay * 2 - 1) * 5 / 2 + i * 10 - 1,
+        yMiddleDate - 2,
+        1.1
+      )
+      : renderInactiveMedicineIcon(
+        startX + dateColumnWidth + timeColumnWidth + modeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth / 2 - (medPerDay * 2 - 1) * 5 / 2 + i * 10 - 1,
+        yMiddleDate - 2,
+        1.1
+      )
+    %>
+  <% } %>
+
+  <%# Icon and memo text at notes column %>
+  <% 
+    let isExistIcon = false;
+    let xIcon = startX + tableWidth - memoColumnWidth + 4;
+  %>
+
+  <% if (day.maskValues) { %>
+    <% Object.entries(day.maskValues).forEach(([maskIndex, mask]) => { %>
+      <%# Skip render medicines icon because of rendering at above %>
+      <% if (['medication_1', 'medication_2', 'medication_3'].includes(maskIndex)) { return; } %>
+
+      <%# Hospital icon %>
+      <% if (mask && maskIndex === 'hospital') { %>
+        <%- renderHospitalIcon(
+          startX + dateColumnWidth - 18,
+          yDate + fixedRowHeight / 2 - 5,
+          1.2
+        ) %>
+        <% return; %>
+      <% } %>
+
+      <%# Rest of icon %>
+      <% if (mask && maskIndex !== 'message') {
+        %>
+        <%- eval(iconList.find(icon => icon.name === maskIndex).renderFunction)(
+          xIcon,
+          yDate + 4,
+          1
+        ) %>
+        <% isExistIcon = true; %>
+        <% xIcon += 15; %>
+      <% } %>
+    <% }) %>
+    <%#
+      str: string,
+      maxWidthStr: number,
+      fontfile: string | null = null,
+      size: number | null = null,
+      elements?: number,
+    %>
+    <%# Memo text %>
+    <% if (day.maskValues.message) { 
+      let msg = day.maskValues.message;
+      const arrNotes = await splitStringByWidthImg(msg, 80, fontFile);
+      msg = arrNotes.length > 1 ? `${arrNotes[0]} ...` : msg;
+      const yMsg = yDate + 9 + (isExistIcon ? 18 : 4);
+    %>
+      <text transform="translate(<%= startX + tableWidth - memoColumnWidth + 6 %> <%= yMsg %>)" style="font-size:9px; font-family:<%= fontName %>;"><%= msg %></text>
+    <% } %>
+  <% } %>
+
+  <%# Handle for loop %>
+  <% yDate += Math.max(measurementCount, 1) * fixedRowHeight; %>
+<% } %>
+
+<%# ----------- DATA - END ----------- %>
+
+<%# ----------- HORIZONTAL LINES FOR EMPTY ROWS AT END OF TABLE - START ----------- %>
+
+<% while (yDate + fixedRowHeight < yTable + tableHeight) { %>
+  <rect x="<%= startX %>" y="<%= yDate + fixedRowHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#ccc;"/>
+  <% yDate += fixedRowHeight; %>
+<% } %>
+
+<%# ----------- HORIZONTAL LINES FOR EMPTY ROWS AT END OF TABLE - END ----------- %>

@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es2020"
+    ],
+    "module": "commonjs",
+    "types": [
+      "node",
+      "jest"
+    ],
+    "moduleResolution": "node",
+    "target": "es2020",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "/opt/*": [
+        "src-layers/*"
+      ]
+    },
+    "outDir": "dist"
+  },
+  "include": [
+    "tests",
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "src-layers",
+  ]
+}

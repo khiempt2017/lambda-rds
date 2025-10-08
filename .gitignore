@@ -1,0 +1,14 @@
+.vscode
+.idea
+.aws-sam
+.DS_Store
+.vscode/
+
+#Folders generated or installed
+node_modules
+dist
+coverage
+
+# Environment files
+local.env.json
+.qodo

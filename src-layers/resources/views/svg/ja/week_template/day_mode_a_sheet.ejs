@@ -1,0 +1,90 @@
+<%# 
+  * day_mode_a_sheet.ejs
+  * NewBP
+  *
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<% 
+  const headerHeight = 23;
+  const rowHeight = 32;
+
+  const yTable = startY;
+  const tableWidth = 524;
+  const tableHeight = headerHeight + rowHeight * 20;
+
+  const dateColumnWidth = 88;
+  const timeColumnWidth = 60;
+  const dataColumnWidth = 150;
+  const iconColumnWidth = 42;
+  const medicinesColumnWidth = 46;
+  const memoColumnWidth = tableWidth - dateColumnWidth - timeColumnWidth - dataColumnWidth - iconColumnWidth - medicinesColumnWidth;
+%>
+<%
+  // Icon definition
+  const iconList = [
+    { name: 'exercise', renderFunction: 'renderExerciseIcon', descKey: 'PDF_WEEK_HINT_EXCERCISE' },
+    { name: 'veggie', renderFunction: 'renderVeggieIcon', descKey: 'PDF_WEEK_HINT_VEGETABLES' },
+    { name: 'sleep', renderFunction: 'renderSleepIcon', descKey: 'PDF_WEEK_HINT_SLEEP' },
+    { name: 'unExercise', renderFunction: 'renderUnexerciseIcon', descKey: 'PDF_WEEK_HINT_LACK_OF_EXCERCISE' },
+    { name: 'unVeggie', renderFunction: 'renderUnveggieIcon', descKey: 'PDF_WEEK_HINT_LESS_VEGETABLES' },
+    { name: 'unSleep', renderFunction: 'renderUnsleepIcon', descKey: 'PDF_WEEK_HINT_LACK_OF_SLEEP' },
+    { name: 'unSalt', renderFunction: 'renderUnsaltIcon', descKey: 'PDF_WEEK_HINT_REDUCING_SALT' },
+    { name: 'unDrink', renderFunction: 'renderUnalcoholIcon', descKey: 'PDF_WEEK_HINT_NO_ALCOHOL' },
+    { name: 'unSmoking', renderFunction: 'renderUnsmokingIcon', descKey: 'PDF_WEEK_HINT_NOT_SMOKING' },
+    { name: 'salt', renderFunction: 'renderSaltIcon', descKey: 'PDF_WEEK_HINT_SALT' },
+    { name: 'drink', renderFunction: 'renderAlcoholIcon', descKey: 'PDF_WEEK_HINT_ALCOHOL' },
+    { name: 'smoking', renderFunction: 'renderSmokingIcon', descKey: 'PDF_WEEK_HINT_SMOKING' },
+    { name: 'hospital', renderFunction: 'renderHospitalIcon', descKey: 'PDF_WEEK_HINT_CONSULTATION' },
+  ];
+%>
+
+<%# ----------- DATA - START ----------- %>
+
+<%# Rectangle area %>
+<rect x="<%= startX %>" y="<%= yTable %>" width="<%= tableWidth %>" height="<%= headerHeight %>" style="fill:#c1c6d5; opacity:0.2;"/>
+<rect x="<%= startX %>" y="<%= yTable + headerHeight %>" width="<%= dateColumnWidth + timeColumnWidth %>" height="<%= tableHeight - headerHeight %>" style="fill:#c1c6d5; opacity:0.2;"/>
+
+<%# Horizontal lines %>
+<rect x="<%= startX %>" y="<%= yTable %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2"/>
+<rect x="<%= startX %>" y="<%= yTable + headerHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2"/>
+<rect x="<%= startX %>" y="<%= yTable + tableHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2;"/>
+
+<%# Vertical lines %>
+<rect x="<%= startX %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d="M <%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth / 3 + 5 %> <%= yTable %> V <%= yTable + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d="M <%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) * 2 %> <%= yTable %> v <%= tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + tableWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2"/>
+
+<%# Text at header of table %>
+<text transform="translate(<%= startX + dateColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DATE %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_TIME %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_SYS %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) * 3 / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DIA %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_PULSE %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DI %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_MED %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth + memoColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_NOTES %></text>
+
+<%# Data at content of table %>
+<%- await include(`/opt/resources/views/svg${subBlade}/week_template/day_mode_a_table.ejs`, {
+  headerHeight,
+  rowHeight,
+  yTable,
+  tableWidth,
+  tableHeight,
+  dateColumnWidth,
+  timeColumnWidth,
+  dataColumnWidth,
+  iconColumnWidth,
+  medicinesColumnWidth,
+  memoColumnWidth,
+  iconList
+}) %>
+
+<%# ----------- DATA - END ----------- %>

@@ -1,0 +1,14 @@
+<%# 
+  * common.ejs
+  * NewBP
+  * 
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<text text-anchor="start" x="18" y="36" style="font-family:<%= fontName %>;">
+  <tspan style="font-size:20; fill:#4d5266;"><%= PDF_TITLE %></tspan>
+  <tspan x="<% titleTextWidth[PDF_TITLE] + 30 %>" style="font-size:16; fill:#191919;"><%= PDF_DATE %></tspan>
+</text>
+<text x="1102" y="36" style="font-size:14; fill:#191919; font-family:<%= fontName %>;" text-anchor="end" xml:space="preserve"><%= PDF_NAME %></text>
+<text x="1102" y="758" style="font-size:9; fill:#7f7f7f; font-family:<%= fontName %>;" text-anchor="end"><%= PDF_CREATE_TIME %></text>
+<text x="1102" y="772" style="font-size:9; fill:#7f7f7f; font-family:<%= fontName %>;" text-anchor="end"><%= PDF_PAGE %></text>

@@ -1,0 +1,174 @@
+<%#
+  * week_sheet.ejs
+  * NewBP
+  *
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<%
+  const headerHeight = 42;
+  const rowHeight = 27;
+
+  const tableWidth = 524;
+  const tableHeight = headerHeight + rowHeight * 23;
+
+  const weekColumnWidth=100;
+  const dataColumnWidth = (tableWidth - weekColumnWidth) / 3;
+
+  // String value of sunday
+  const sunArr = ['Sun', '日'];
+
+  // For get corresponding rendering function
+  const targetIconRenderFunction = {
+    'iconTargetAchieved': 'renderTargetAchievedIcon',
+    'iconEqual': 'renderEqualOrSlightlyIcon',
+    'iconHigher': 'renderHigherIcon',
+    'iconMuchHigher': 'renderMuchHigherIcon',
+  };
+%>
+
+<%# ----------- GRID - START ----------- %>
+
+<%# Rectangle lines %>
+<rect x="<%= startX %>" y="<%= startY %>" width="<%= tableWidth %>" height="<%= headerHeight %>" style="fill:#c1c6d5; opacity:0.2;"/>
+<rect x="<%= startX %>" y="<%= startY + headerHeight %>" width="<%= weekColumnWidth %>" height="<%= tableHeight - headerHeight %>" style="fill:#c1c6d5; opacity:0.2;"/>
+
+ <%# Horizontal lines %>
+<rect x="<%= startX %>" y="<%= startY %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2"/>
+<rect x="<%= startX + weekColumnWidth %>" y="<%= startY + headerHeight / 2 %>" width="<%= tableWidth - weekColumnWidth %>" height="0.65" style="fill:#a6aab2;"/>
+<rect x="<%= startX %>" y="<%= startY + tableHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2;"/>
+<rect x="<%= startX %>" y="<%= startY %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<% for(let i = 0; i < 23; i++) { %>
+  <rect x="<%= startX %>" y="<%= startY + headerHeight + i * rowHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2;"/>
+<% } %>
+
+ <%# Vertical lines %>
+<rect x="<%= startX + weekColumnWidth %>" y="<%= startY %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + weekColumnWidth + dataColumnWidth %>" y="<%= startY %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + weekColumnWidth + dataColumnWidth * 2 %>" y="<%= startY %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + tableWidth %>" y="<%= startY %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d=" M <%= startX + weekColumnWidth + dataColumnWidth / 3 + 5 %> <%= startY + headerHeight / 2 %> V <%= startY + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d=" M <%= startX + weekColumnWidth + dataColumnWidth / 3 * 2 + 10 %> <%= startY + headerHeight / 2 %> V <%= startY + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d=" M <%= startX + weekColumnWidth + dataColumnWidth + dataColumnWidth / 3 + 5 %> <%= startY + headerHeight / 2 %> V <%= startY + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d=" M <%= startX + weekColumnWidth + dataColumnWidth + dataColumnWidth / 3 * 2 + 10 %> <%= startY + headerHeight / 2 %> V <%= startY + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d=" M <%= startX + weekColumnWidth + dataColumnWidth * 2 + dataColumnWidth / 3 + 5 %> <%= startY + headerHeight / 2 %> V <%= startY + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d=" M <%= startX + weekColumnWidth + dataColumnWidth * 2 + dataColumnWidth / 3 * 2 + 10 %> <%= startY + headerHeight / 2 %> V <%= startY + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+
+ <%# ----------- GRID - END ----------- %>
+
+ <%# ----------- HEADER TABLE - START ----------- %>
+
+ <%# Text at top-left table %>
+<text x="<%= startX + weekColumnWidth / 2 %>" y="<%= startY + headerHeight / 2 + 5 %>" style="font-size:10; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_PERIOD %></text>
+
+ <%# Text at morning header table %>
+<%- renderMorIcon(startX + weekColumnWidth + 48, startY + 4, 1.2) %>
+<text x="<%= startX + weekColumnWidth + 68 %>" y="<%= startY + headerHeight / 4 + 5 %>" style="font-size:10; fill:#4d5266; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_MOR_AVG %></text>
+
+<text x="<%= startX + weekColumnWidth + (dataColumnWidth / 3 + 5) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_SYS %></text>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth / 3 + 5 + (dataColumnWidth / 3 + 5) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DIA %></text>
+<text x="<%= startX + weekColumnWidth + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_PULSE %></text>
+
+ <%# Text at evening header table %>
+<%- renderEveIcon(startX + weekColumnWidth + dataColumnWidth + 48, startY + 4, 1.2) %>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth + 68 %>" y="<%= startY + headerHeight / 4 + 5 %>" style="font-size:10; fill:#4d5266; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_EVE_AVG %></text>
+
+<text x="<%= startX + weekColumnWidth + dataColumnWidth + (dataColumnWidth / 3 + 5) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_SYS %></text>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth + dataColumnWidth / 3 + 5 + (dataColumnWidth / 3 + 5) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DIA %></text>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_PULSE %></text>
+
+ <%# Text at average header table %>
+<%- renderAvgIcon(startX + weekColumnWidth + dataColumnWidth * 2 + 48, startY + 4, 1.3) %>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + 68 %>" y="<%= startY + headerHeight / 4 + 5 %>" style="font-size:10; fill:#4d5266; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_DAY_AVG %></text>
+
+<text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + (dataColumnWidth / 3 + 5) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_SYS %></text>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + dataColumnWidth / 3 + 5 + (dataColumnWidth / 3 + 5) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DIA %></text>
+<text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %>" y="<%= startY + headerHeight / 4 * 3 + 4.5 %>" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_PULSE %></text>
+
+ <%# ----------- HEADER TABLE - END ----------- %>
+
+
+
+ <%# ----------- DATA AREA - START ----------- %>
+<% arrWeeks.forEach((week, rowIndex) => { %>
+  <% 
+    const yRow = startY + headerHeight + rowIndex * rowHeight;
+    const yMiddleRow = yRow + rowHeight / 2;
+  %>
+
+  <%# Range Time Text %>
+  <text transform="translate(<%= startX + 3 %>, <%= yMiddleRow + 4.5 %>)" style="font-size:9; fill:#333; letter-spacing:0.02em; font-family:<%= fontName %>;"><%= week.month %></text>
+  
+  <text text-anchor="end" transform="translate(<%= startX + 32 %>, <%= yMiddleRow + 5.5 %>)" style="font-size:11; fill:#191919; letter-spacing:0.02em; font-family:<%= fontName %>;"><%= week.startDay %></text>
+  <text transform="translate(<%= startX + 35 %> <%= yMiddleRow + 4.5 %>)" style="font-size:9; letter-spacing:0.02em; font-family:<%= fontName %>;" fill="<%= sunArr.includes(week.startDayWeek) ? '#C75882' : '#000000' %>"><%= `${week.startDayWeek}` %></text>
+
+  <text text-anchor="middle" transform="translate(<%= startX + 56 %>, <%= yMiddleRow + 4.5 %>)" style="font-size:10; fill:#191919; letter-spacing:0.02em; font-family:<%= fontName %>;"><%= week.dateSeparate %></text>
+
+  <text text-anchor="end" transform="translate(<%= startX + weekColumnWidth - 27 %> <%= yMiddleRow + 5.5 %>)" style="font-size:11; fill:#191919; letter-spacing:0.02em; font-family:<%= fontName %>;"><%= week.endDay %></text>
+  <text transform="translate(<%= startX + weekColumnWidth - 24 %> <%= yMiddleRow + 4.5 %>)" style="font-size:9; letter-spacing:0.02em; font-family:<%= fontName %>;" fill="<%= sunArr.includes(week.endDayWeek) ? '#C75882' : '#000000' %>">
+    <%= `${week.endDayWeek}` %>
+  </text>
+
+  <%# Morning data %>
+  <text x="<%= startX + weekColumnWidth + 32 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= week.vitals.mor.systolic %></text>
+  <% if (targetIconRenderFunction.hasOwnProperty(week.vitals.mor.riskIconSystolic)) { %>
+    <%- eval(targetIconRenderFunction[week.vitals.mor.riskIconSystolic])(
+      startX + weekColumnWidth + 34,
+      yMiddleRow - 4,
+      1.2
+    ) %>
+  <% } %>
+
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth / 3 + 5 + 32 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= week.vitals.mor.diastolic %></text>
+  <% if (targetIconRenderFunction.hasOwnProperty(week.vitals.mor.riskIconDiastolic)) { %>
+    <%- eval(targetIconRenderFunction[week.vitals.mor.riskIconDiastolic])(
+      startX + weekColumnWidth + dataColumnWidth / 3 + 5 + 34,
+      yMiddleRow - 4,
+      1.2
+    ) %>
+  <% } %>
+
+  <text x="<%= startX + weekColumnWidth + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="middle"><%= week.vitals.mor.pulse %></text>
+
+  <%# Evening data %>
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth + 32 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= week.vitals.eve.systolic %></text>
+  <% if (targetIconRenderFunction.hasOwnProperty(week.vitals.eve.riskIconSystolic)) { %>
+    <%- eval(targetIconRenderFunction[week.vitals.eve.riskIconSystolic])(
+      startX + weekColumnWidth + dataColumnWidth + 34,
+      yMiddleRow - 4,
+      1.2
+    ) %>
+  <% } %>
+
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth + dataColumnWidth / 3 + 5 + 32 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= week.vitals.eve.diastolic %></text>
+  <% if (targetIconRenderFunction.hasOwnProperty(week.vitals.eve.riskIconDiastolic)) { %>
+    <%- eval(targetIconRenderFunction[week.vitals.eve.riskIconDiastolic])(
+      startX + weekColumnWidth + dataColumnWidth + dataColumnWidth / 3 + 5 + 34,
+      yMiddleRow - 4,
+      1.2
+    ) %>
+  <% } %>
+
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="middle"><%= week.vitals.eve.pulse %></text>
+
+  <%# Average data %>
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + 32 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= week.vitals.day.systolic %></text>
+  <% if (targetIconRenderFunction.hasOwnProperty(week.vitals.day.riskIconSystolic)) { %>
+    <%- eval(targetIconRenderFunction[week.vitals.day.riskIconSystolic])(
+      startX + weekColumnWidth + dataColumnWidth * 2 + 34,
+      yMiddleRow - 4,
+      1.2
+    ) %>
+  <% } %>
+
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + dataColumnWidth / 3 + 5 + 32 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="end"><%= week.vitals.day.diastolic %></text>
+  <% if (targetIconRenderFunction.hasOwnProperty(week.vitals.day.riskIconDiastolic)) { %>
+    <%- eval(targetIconRenderFunction[week.vitals.day.riskIconDiastolic])(
+      startX + weekColumnWidth + dataColumnWidth * 2 + dataColumnWidth / 3 + 5 + 34,
+      yMiddleRow - 4,
+      1.2
+    ) %>
+  <% } %>
+
+  <text x="<%= startX + weekColumnWidth + dataColumnWidth * 2 + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %>" y="<%= yMiddleRow + 6.5 %>" style="font-size:13; fill:#191919; font-family:<%= fontName %>;" text-anchor="middle"><%= week.vitals.day.pulse %></text>
+<% }) %>

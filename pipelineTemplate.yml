@@ -1,0 +1,400 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/03/30
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for code pipeline.
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+  ProjectName:
+    Type: String
+    Description: ProjectName used to associate new resources to team members
+    Default: BP-api-serverless
+Conditions:
+  IsDevStage: 
+    Fn::Or:
+      - Fn::Equals: [!Ref Stage, dev]
+      - Fn::Equals: [!Ref Stage, test]
+  IsStgStage: !Equals [!Ref Stage, stg]
+  IsProdStage: !Equals [!Ref Stage, prod]
+  IsDevdOrStg: 
+    Fn::Or:
+      - Fn::Equals: [!Ref Stage, dev]
+      - Fn::Equals: [!Ref Stage, stg]
+  IsEuRegion: !Equals [!Ref AWS::Region, "eu-west-1"]
+  IsSgRegion: !Equals [!Ref AWS::Region, "ap-southeast-1"]
+  IsInRegion: !Equals [!Ref AWS::Region, "ap-south-1"]
+Resources:
+  AutoCodePipelineProject:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub "${ProjectName}-${Stage}-pipeline"
+      PipelineType: V2
+      RoleArn: !GetAtt CloudFormationCodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineBucket
+      Stages:
+        - Name: SourceStage
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: "1"
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ConnectionArn: !Sub '{{resolve:secretsmanager:${ProjectName}-common-secrets:SecretString:codestar-connection-arn}}'
+                FullRepositoryId: !Sub '{{resolve:secretsmanager:${ProjectName}-common-secrets:SecretString:full-repository-id}}'
+                BranchName: !If 
+                - IsDevStage
+                - "develop"  # Branch for dev stage
+                - !If
+                  - IsStgStage
+                  - !If
+                      - IsEuRegion
+                      - "staging-eu"  # Branch for eu-west Staging
+                      - !If
+                          - IsSgRegion
+                          - "staging-sg"  # Branch for ap-southeast Staging
+                          - !If
+                              - IsInRegion
+                              - "staging-in"  # Branch for ap-south Staging
+                              - "staging"  # Default staging-tokyo
+                  - !If
+                      - IsProdStage
+                      - !If
+                          - IsEuRegion
+                          - "production-eu"  # Branch for eu-west Production
+                          - !If
+                              - IsSgRegion
+                              - "production-sg"  # Branch for ap-southeast Production
+                              - !If
+                                  - IsInRegion
+                                  - "production-in"  # Branch for ap-south Production
+                                  - "production"  # Default production
+                      - "staging"  # Default for non exist conditions, this is a must value
+                OutputArtifactFormat: "CODE_ZIP"
+              RunOrder: 1
+              
+        - Name: BuildStage
+          Actions:
+            - Name: Build
+              InputArtifacts:
+                - Name: SourceOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              OutputArtifacts:
+                - Name: BuildArtifact
+              Configuration:
+                ProjectName: !Ref CodeBuildStage
+
+        - Name: "DeployStage"
+          Actions: 
+          - Name: "Deploy"
+            ActionTypeId: 
+                Category: "Deploy"
+                Owner: "AWS"
+                Provider: "CloudFormation"
+                Version: "1"
+            Configuration: 
+                ActionMode: "CREATE_UPDATE"
+                Capabilities: "CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND"
+                RoleArn: !GetAtt CloudFormationDeployRole.Arn
+                StackName: !Sub "${ProjectName}-${Stage}-lambda-stack"
+                TemplatePath: BuildArtifact::packaged-template.yml
+                ParameterOverrides: !Sub "{ \"Stage\": \"${Stage}\" }"
+            InputArtifacts: 
+              - Name: "BuildArtifact"
+            RunOrder: 1
+    # DeletionPolicy: Retain
+  PipelineBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Sub "bp-api-serverless-${AWS::Region}-${Stage}-pipeline-${AWS::AccountId}"
+      AccessControl: Private  # Set the desired access control
+  CodeBuildStage:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+        Name: !Sub "${ProjectName}-${Stage}-codebuild"
+        Source: 
+            Auth: 
+                Type: "CODECONNECTIONS"
+                Resource: !Sub '{{resolve:secretsmanager:${ProjectName}-common-secrets:SecretString:codestar-connection-arn}}'
+            GitCloneDepth: 1
+            GitSubmodulesConfig: 
+                FetchSubmodules: false
+            InsecureSsl: false
+            Location: !Sub '{{resolve:secretsmanager:${ProjectName}-common-secrets:SecretString:repository-location}}'
+
+            ReportBuildStatus: false
+            Type: "BITBUCKET"
+        ServiceRole: !GetAtt CodeBuildRole.Arn
+        Artifacts: 
+            Type: "NO_ARTIFACTS"
+        Cache: 
+            Type: "NO_CACHE"
+        Environment: 
+            ComputeType: "BUILD_GENERAL1_MEDIUM"
+            Image: "aws/codebuild/standard:6.0" 
+            ImagePullCredentialsType: "CODEBUILD"
+            PrivilegedMode: true
+            Type: "LINUX_CONTAINER"
+            EnvironmentVariables:
+            - Name: REGION
+              Value: !Ref AWS::Region
+            - Name: ENVIRONMENT
+              Value: !Ref Stage
+        TimeoutInMinutes: 15
+        BadgeEnabled: false
+        LogsConfig: 
+            CloudWatchLogs: 
+                Status: "ENABLED"
+            S3Logs: 
+                Status: "DISABLED"
+                EncryptionDisabled: false
+        Visibility: "PRIVATE"
+  CloudFormationCodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::Region}-${Stage}-CloudFormationCodePipelineServiceRole"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::Region}-${Stage}-CodePipelineServicePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: "*"
+                Condition:
+                  StringEqualsIfExists:
+                    iam:PassedToService:
+                      - cloudformation.amazonaws.com
+              - Effect: Allow
+                Action:
+                  - codecommit:CancelUploadArchive
+                  - codecommit:GetBranch
+                  - codecommit:GetCommit
+                  - codecommit:GetRepository
+                  - codecommit:GetUploadArchiveStatus
+                  - codecommit:UploadArchive
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetApplication
+                  - codedeploy:GetApplicationRevision
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentConfig
+                  - codedeploy:RegisterApplicationRevision
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - cloudwatch:*
+                  - s3:*
+                  - sns:*
+                  - cloudformation:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                  - lambda:ListFunctions
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStack
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeStacks
+                  - cloudformation:UpdateStack
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:SetStackPolicy
+                  - cloudformation:ValidateTemplate
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuildBatches
+                  - codebuild:StartBuildBatch
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - cloudformation:ValidateTemplate
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - appconfig:StartDeployment
+                  - appconfig:StopDeployment
+                  - appconfig:GetDeployment
+                Resource: "*"
+  #Deploy role
+  CloudFormationDeployRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: !Sub "${AWS::Region}-${Stage}-CloudFormationDeployRole"
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service: 
+                - cloudformation.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::Region}-${Stage}-CloudFormationDeployPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: 
+              - Sid: "Statement1"
+                Effect: Allow
+                Action: 
+                  - dynamodb:*
+                  - iam:*
+                  - organizations:DescribeAccount
+                  - organizations:DescribeOrganization
+                  - organizations:DescribeOrganizationalUnit
+                  - organizations:DescribePolicy
+                  - organizations:ListChildren
+                  - organizations:ListParents
+                  - organizations:ListPoliciesForTarget
+                  - organizations:ListRoots
+                  - organizations:ListPolicies
+                  - organizations:ListTargetsForPolicy
+                  - lambda:PublishLayerVersion
+                  - lambda:UpdateFunctionConfiguration
+                  - lambda:GetFunction
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:TagResource
+                  - lambda:GetLayerVersion
+                  - lambda:ListVersionsByFunction
+                  - lambda:PublishVersion
+                  - lambda:GetFunctionConfiguration
+                  - lambda:CreateAlias
+                  - lambda:AddPermission
+                  - lambda:UpdateFunctionCode
+                  - lambda:RemovePermission
+                  - lambda:DeleteAlias
+                  - lambda:ListTags
+                  - lambda:UpdateAlias
+                  - lambda:*
+                  - s3:*
+                  - secretsmanager:*
+                  - codedeploy:*
+                  - apigateway:*
+                  - route53:*
+                  - cloudformation:*
+                  - ses:*
+                  - wafv2:*
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeVpcs
+                Resource: "*"
+              - Effect: Deny
+                Action: 
+                  - cloudformation:DeleteStack
+                  - codepipeline:DeletePipeline
+                  - codebuild:DeleteProject
+                Resource: "*"
+
+  # IAM Role Definition
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "${AWS::Region}-${Stage}-CodeBuildServiceRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codebuild.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "${AWS::Region}-${Stage}-CodeBuildPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:GetBucketAcl"
+                  - "s3:GetBucketLocation"
+                  - "s3:CreateBucket"
+                  - "s3:ListBucket"
+                  - "codebuild:CreateReportGroup"
+                  - "codebuild:CreateReport"
+                  - "codebuild:UpdateReport"
+                  - "codebuild:BatchPutTestCases"
+                  - "codebuild:BatchPutCodeCoverages"
+                  - "cloudformation:*"
+                  - "iam:PassRole"
+                  - "iam:CreateRole"
+                  - "iam:DeleteRole"
+                  - "iam:PutRolePolicy"
+                  - "iam:DeleteRolePolicy"
+                  - "iam:GetRole"
+                  - "iam:GetRolePolicy"
+                  - "iam:AttachRolePolicy"
+                  - "iam:DetachRolePolicy"
+                  - "iam:ListRolePolicies"
+                  - "iam:ListAttachedRolePolicies"
+                  - "lambda:PublishLayerVersion"
+                  - "lambda:UpdateFunctionConfiguration"
+                  - "lambda:GetFunction"
+                  - "lambda:CreateFunction"
+                  - "lambda:DeleteFunction"
+                  - "lambda:TagResource"
+                  - "lambda:GetLayerVersion"
+                  - "lambda:ListVersionsByFunction"
+                  - "lambda:PublishVersion"
+                  - "lambda:GetFunctionConfiguration"
+                  - "lambda:CreateAlias"
+                  - "lambda:AddPermission"
+                  - "secretsmanager:*"
+                  - "dynamodb:*"
+                  - "codedeploy:*"
+                  - apigateway:*
+                  - "codestar-connections:GetConnectionToken"
+                  - "codestar-connections:GetConnection"
+                  - "codeconnections:GetConnectionToken"
+                  - "codeconnections:GetConnection"
+                  - "codeconnections:UseConnection"
+                  - "ecr:*"
+                Resource: "*"
+
+  

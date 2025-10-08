@@ -1,0 +1,262 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/03/30
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for EventBridge
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+      - performance
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+Resources:
+  # Rule Schedules for warm up lambda functions:
+  RuleWarmDeleteWithdrawalUser:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for warm up lambda delete-withdrawal-user
+      Name: !Sub ${ProjectId}-${Stage}-warm-delete-withdrawal-user
+      ScheduleExpression: cron(59 18 09 * ? *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-warm-delete-withdrawal-user
+          Arn: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-delete-withdrawal-user
+          Input: |
+            {
+              "requestContext": {
+                "requestId": "delete-withdrawal-user"
+              },
+              "body": "{\"isWarmUpLambda\": true}"
+            }
+  # Rule Schedules for delete withdrawal user lambda functions:
+  RuleDeleteWithdrawalUser:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for delete withdrawal user lambda
+      Name: !Sub ${ProjectId}-${Stage}-delete-withdrawal-user
+      ScheduleExpression: cron(00 19 09 * ? *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-delete-withdrawal-user
+          Arn:
+            Fn::Sub: >-
+              arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-delete-withdrawal-user
+          Input: |
+            {
+              "requestContext": {
+                "requestId": "delete-withdrawal-user"
+              },
+              "body": null
+            }
+  # Lambda Permissions:
+  LambdaWarmDeleteWithdrawalPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-delete-withdrawal-user
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleWarmDeleteWithdrawalUser
+          - Arn
+  LambdaDeleteWithdrawalPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-delete-withdrawal-user
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleDeleteWithdrawalUser
+          - Arn
+  # Rule Schedules for warm up lambda functions:
+  RuleWarmSetWithdrawalUser:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for warm up lambda set-withdrawal-user
+      Name: !Sub ${ProjectId}-${Stage}-warm-set-withdrawal-user
+      ScheduleExpression: cron(59 17 09 * ? *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-warm-set-withdrawal-user
+          Arn: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-set-withdrawal-user
+          Input: |
+            {
+              "requestContext": {
+                "requestId": "set-withdrawal-user"
+              },
+              "body": "{\"isWarmUpLambda\": true}"
+            }
+  # Lambda Permissions:
+  LambdaWarmSetWithdrawalUserPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-set-withdrawal-user
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleWarmSetWithdrawalUser
+          - Arn
+  LambdaSetWithdrawalUserPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-set-withdrawal-user
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleSetWithdrawalUser
+          - Arn
+  # Rule Schedules for set withdrawal user lambda functions:
+  RuleSetWithdrawalUser:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for lambda set-withdrawal-user
+      Name: !Sub ${ProjectId}-${Stage}-set-withdrawal-user
+      ScheduleExpression: cron(00 18 09 * ? *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-set-withdrawal-user
+          Arn:
+            Fn::Sub: >-
+              arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-set-withdrawal-user
+          Input: |
+            {
+              "requestContext": {
+                "requestId": "set-withdrawal-user"
+              },
+              "body": null
+            }
+  LambdaExportCsvPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-export-csv
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleExportCsv
+          - Arn
+  # Rule Schedules for export csv lambda functions:
+  RuleExportCsv:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for lambda export-csv
+      Name: !Sub ${ProjectId}-${Stage}-export-csv
+      ScheduleExpression: cron(30 8 ? * 1 *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-export-csv
+          Arn:
+            Fn::Sub: >-
+              arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-export-csv
+          Input: |
+            {
+              "requestContext": {
+                "requestId": "export-csv"
+              },
+              "body": null
+            }
+  LambdaSendEmailPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-send-email-batch
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - LambdaSendEmail
+          - Arn
+  LambdaSendEmail:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for lambda send-email-batch
+      Name: !Sub ${ProjectId}-${Stage}-send-email-batch
+      ScheduleExpression: cron(0/15 3-11 ? * 1 *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-send-email-batch
+          Arn:
+            Fn::Sub: >-
+              arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-send-email-batch
+          
+  # Rule Schedules for clone table report lambda functions:
+  RuleCloneTableReport:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for lambda clone-table-report
+      Name: !Sub ${ProjectId}-${Stage}-clone-table-report
+      ScheduleExpression: cron(0/10 0-13 ? * * *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-clone-table-report
+          Arn:
+            Fn::Sub: >-
+              arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-clone-table-report
+          Input: |
+            {
+              "requestContext": {
+                "requestId": "clone-table-report"
+              },
+              "body": null
+            }
+  LambdaCloneTableReportPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-clone-table-report
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleCloneTableReport
+          - Arn
+  # Rule Schedules for backup dynamodb lambda function:
+  RuleBackupDynamoDB:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule Schedules for backup dynamodb lambda function
+      Name: !Sub ${ProjectId}-${Stage}-create-dynamodb-backup
+      ScheduleExpression: cron(00 18 09 * ? *)
+      State: ENABLED
+      EventBusName: default
+      Targets:
+        - Id: !Sub ${ProjectId}-${Stage}-create-dynamodb-backup
+          Arn:
+            Fn::Sub: >-
+              arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectId}-${Stage}-create-dynamodb-backup
+  # Lambda Permissions:
+  LambdaCreateDynamoDBBackupPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub ${ProjectId}-${Stage}-create-dynamodb-backup
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - RuleBackupDynamoDB
+          - Arn
+  BackupVault:
+    Type: AWS::Backup::BackupVault
+    Properties:
+      BackupVaultName: !Sub "DynamoDBBackupVault-${Stage}"
+      BackupVaultTags:
+        Environment: Production
+        Project: !Sub "${ProjectId}-DynamoDBBackup-${Stage}"

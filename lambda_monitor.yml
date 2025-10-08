@@ -1,0 +1,730 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/08/04
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for CloudWatch Metric Filters and Alarms
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+      - performance
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+
+Resources:
+  # Metric Filter and Alarm for SetMessageFlag Lambda
+  SetMessageFlagMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-set-message-flg'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-set-message-flg-errors'
+
+  SetMessageFlagAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-set-message-flg-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-set-message-flg-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetMessageFlag Lambda
+  GetMessageFlagMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-message-flg'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-message-flg-errors'
+
+  GetMessageFlagAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-message-flg-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-message-flg-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetSettings Lambda
+  GetSettingsMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-settings'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-settings-errors'
+
+  GetSettingsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-settings-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-settings-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for RegisterSettings Lambda
+  RegisterSettingsMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-register-settings'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-register-settings-errors'
+
+  RegisterSettingsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-register-settings-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-register-settings-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for SetMemo Lambda
+  SetMemoMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-set-memo'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-set-memo-errors'
+
+  SetMemoAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-set-memo-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-set-memo-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetBPDiaryInfo Lambda
+  GetBPDiaryInfoMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-bp-diary-info'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-bp-diary-info-errors'
+
+  GetBPDiaryInfoAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-bp-diary-info-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-bp-diary-info-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetBPDiaryList Lambda
+  GetBPDiaryListMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-bp-diary-info-list'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-bp-diary-info-list-errors'
+
+  GetBPDiaryListAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-bp-diary-info-list-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-bp-diary-info-list-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetVitalData Lambda
+  GetVitalDataMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-vital-data'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-vital-data-errors'
+
+  GetVitalDataAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-vital-data-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-vital-data-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetDeviceInfo Lambda
+  GetDeviceInfoMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-device-info'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-device-info-errors'
+
+  GetDeviceInfoAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-device-info-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-device-info-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for SetWithdrawalUser Lambda
+  SetWithdrawalUserMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-set-withdrawal-user'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-set-withdrawal-user-errors'
+
+  SetWithdrawalUserAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-set-withdrawal-user-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-set-withdrawal-user-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for DeleteWithdrawalUser Lambda
+  DeleteWithdrawalUserMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-delete-withdrawal-user'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-delete-withdrawal-user-errors'
+
+  DeleteWithdrawalUserAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-delete-withdrawal-user-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-delete-withdrawal-user-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for ExportCSV Lambda
+  ExportCSVMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-export-csv'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-export-csv-errors'
+
+  ExportCSVAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-export-csv-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-export-csv-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for LoginRegularReport Lambda
+  LoginRegularReportMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-login-regular-report'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-login-regular-report-errors'
+
+  LoginRegularReportAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-login-regular-report-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-login-regular-report-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for SetRegularReport Lambda
+  SetRegularReportMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-set-regular-report'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-set-regular-report-errors'
+
+  SetRegularReportAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-set-regular-report-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-set-regular-report-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetRegularReportSetting Lambda
+  GetRegularReportSettingMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-regular-report-setting'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-regular-report-setting-errors'
+
+  GetRegularReportSettingAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-regular-report-setting-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-regular-report-setting-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for CreateDynamoDBBackup Lambda
+  CreateDynamoDBBackupMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-create-dynamodb-backup'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-create-dynamodb-backup-errors'
+
+  CreateDynamoDBBackupAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-create-dynamodb-backup-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-create-dynamodb-backup-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for SendEmail Lambda
+  SendEmailMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-send-email'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-send-email-errors'
+
+  SendEmailAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-send-email-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-send-email-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetEmailUserList Lambda
+  GetEmailUserListMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-email-user-list'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-email-user-list-errors'
+
+  GetEmailUserListAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-email-user-list-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-email-user-list-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for SendEmailBatch Lambda
+  SendEmailBatchMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-send-email-batch'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-send-email-batch-errors'
+
+  SendEmailBatchAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-send-email-batch-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-send-email-batch-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for CloneTableReport Lambda
+  CloneTableReportMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-clone-table-report'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-clone-table-report-errors'
+
+  CloneTableReportAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-clone-table-report-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-clone-table-report-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for SetEmailRegularReport Lambda
+  SetEmailRegularReportMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-set-email-regular-report'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-set-email-regular-report-errors'
+
+  SetEmailRegularReportAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-set-email-regular-report-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-set-email-regular-report-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for GetVerifyLink Lambda
+  GetVerifyLinkMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-get-verify-link'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-get-verify-link-errors'
+
+  GetVerifyLinkAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-get-verify-link-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-get-verify-link-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for VerifyEmail Lambda
+  VerifyEmailMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-verify-email'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-verify-email-errors'
+
+  VerifyEmailAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-verify-email-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-verify-email-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for UnsubscribeRequest Lambda
+  UnsubscribeRequestMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-unsubscribe-request'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-unsubscribe-request-errors'
+
+  UnsubscribeRequestAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-unsubscribe-request-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-unsubscribe-request-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for Unsubscribe Lambda
+  UnsubscribeMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-unsubscribe'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-unsubscribe-errors'
+
+  UnsubscribeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-unsubscribe-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-unsubscribe-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+
+  # Metric Filter and Alarm for DeleteEmail Lambda
+  DeleteEmailMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ProjectId}-${Stage}-delete-email'
+      FilterPattern: '?"Error" ?"ERROR"'
+      MetricTransformations:
+        - MetricValue: '1'
+          MetricNamespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+          MetricName: !Sub '${ProjectId}-${Stage}-delete-email-errors'
+
+  DeleteEmailAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectId}-${Stage}-delete-email-error-alarm'
+      MetricName: !Sub '${ProjectId}-${Stage}-delete-email-errors'
+      Namespace: !Sub '${ProjectId}-${Stage}-error-metrics'
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !ImportValue 
+          Fn::Sub: "${AWS::Region}-${Stage}-cloudwatch-alarms-topic-arn"
+Outputs:
+  ErrorMetricsNamespace:
+    Description: "Name of the Error Metrics Namespace"
+    Value: !Sub '${ProjectId}-${Stage}-error-metrics'
+    Export:
+      Name: !Sub "${AWS::Region}-${Stage}-error-metrics-namespace"

@@ -1,0 +1,39 @@
+<%#
+  * day_day.ejs
+  * NewBP
+  *
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="1122"
+  height="790"
+  viewBox="0 0 1122 790" 
+>
+  <%# ----------- COMMON - START ----------- %>
+  <%- await include(`/opt/resources/views/svg${subBlade}/template/common.ejs`, {
+    PDF_TITLE: appLang.PDF_WEEK_AVG_TITLE,
+    PDF_DATE: dateFrom + appLang.PDF_DATE_SEPARATE + dateTo,
+    PDF_NAME: appLang.PDF_NAME + userName,
+    PDF_CREATE_TIME: appLang.PDF_DATE_CREATE + timeCreate,
+    PDF_PAGE: appLang.PDF_PAGE + indexPage + '/' + totalPage,
+  }) %>
+  <%# ----------- COMMON - END ----------- %>
+
+  <%# ----------- TABLE TITLE - START ----------- %>
+  <text transform="translate(18 76)" style="font-size:14px; fill:#4d5266; font-family:'<%= fontName %>';">
+    <%= appLang.PDF_WEEK_ALL_RECORD_HEADER %>
+  </text>
+  <%# ----------- TABLE TITLE - END ----------- %>
+
+  <%# ----------- TABLE - START ----------- %>
+  <% if (mode === 'B') { %>
+    <%- await include(`/opt/resources/views/svg${subBlade}/week_template/day_mode_b_head_sheet.ejs`, { startX: 18, startY: 84, arrDays: leftDays }) %>
+    <%- await include(`/opt/resources/views/svg${subBlade}/week_template/day_mode_b_sheet.ejs`, { startX: 578, startY: 84, arrDays: rightDays }) %>
+  <% } else { %>
+    <%- await include(`/opt/resources/views/svg${subBlade}/week_template/day_mode_a_head_sheet.ejs`, { startX: 18, startY: 84, arrDays: leftDays }) %>
+    <%- await include(`/opt/resources/views/svg${subBlade}/week_template/day_mode_a_sheet.ejs`, { startX: 578, startY: 84, arrDays: rightDays }) %>
+  <% } %>
+</svg>

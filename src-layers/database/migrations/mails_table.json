@@ -1,0 +1,61 @@
+{
+  "TableName": "BPDiary-mails_local",
+  "AttributeDefinitions": [
+    { "AttributeName": "user_id", "AttributeType": "S" },
+    { "AttributeName": "record_id", "AttributeType": "N" },
+    { "AttributeName": "created_at", "AttributeType": "S" },
+    { "AttributeName": "authkey", "AttributeType": "S" },
+    { "AttributeName": "is_self", "AttributeType": "N" }
+  ],
+  "KeySchema": [
+    { "AttributeName": "user_id", "KeyType": "HASH" },
+    { "AttributeName": "record_id", "KeyType": "RANGE" }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "authkey_index", 
+      "KeySchema": [
+        { "AttributeName": "authkey", "KeyType": "HASH" }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+      }
+    },
+    {
+      "IndexName": "user_created_at_index",
+      "KeySchema": [
+        { "AttributeName": "user_id", "KeyType": "HASH" },
+        { "AttributeName": "created_at", "KeyType": "RANGE" }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"  
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+      }
+    },
+    {
+      "IndexName": "user_is_self_index",
+      "KeySchema": [
+        { "AttributeName": "user_id", "KeyType": "HASH" },
+        { "AttributeName": "is_self", "KeyType": "RANGE" }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL" 
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+      }
+    }
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 5,
+    "WriteCapacityUnits": 5
+  }
+}

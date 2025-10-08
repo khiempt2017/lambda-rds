@@ -1,0 +1,477 @@
+<%#
+  * day.ejs
+  * NewBP
+  *
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="1122"
+    height="790"
+    viewBox="0 0 1122 790"
+>
+  <%# ----------- GRID - START ----------- %>
+
+  <%# Fill background for page %>
+  <rect width="1122" height="790" style="fill:#fff;"/>
+
+  <%# Fill background for header table %>
+  <rect x="18" y="48" width="1084" height="38" style="fill:#c1c6d5; opacity:0.2;"/>
+  <rect x="18" y="362" width="1084" height="172" style="fill:#c1c6d5; opacity:0.2;"/>
+  <rect x="134" y="384" width="968" height="64" style="fill:#fff;"/>
+  <rect x="134" y="470" width="968" height="64" style="fill:#fff;"/>
+
+  <%# Dashed vertical lines %>
+  <% for(let i=0, dotLineV=0; i<15; i++, dotLineV+=56) { %>
+    <% dotLineV += (i==7||i==8 ? 2.5 : 0); %>
+    <line x1="<%= 190 + dotLineV %>" y1="48" x2="<%= 190 + dotLineV %>" y2="742" style="fill:none; stroke:#a6aab2; stroke-miterlimit:13.25; stroke-width:0.65;stroke-dasharray: 1,2;"/>
+  <% } %>
+
+  <%# Other vertical lines and horizontal lines %>
+  <rect x="62" y="384" width="1040" height="0.65" style="fill:#ccc;"/>
+  <rect x="62" y="362" width="0.65" height="86" style="fill:#ccc;"/>
+  <rect x="62" y="448" width="0.65" height="86" style="fill:#ccc;"/>
+  <rect x="62" y="405.25" width="1040" height="0.65" style="fill:#ccc;"/>
+  <rect x="62" y="426.65" width="1040" height="0.65" style="fill:#ccc;"/>
+  <rect x="62" y="470" width="1040" height="0.65" style="fill:#ccc;"/>
+  <rect x="62" y="491.35" width="1040" height="0.65" style="fill:#ccc;"/>
+  <rect x="62" y="512.65" width="1040" height="0.65" style="fill:#ccc;"/>
+  <rect x="18" y="48" width="1084" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="86" width="1084" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="48" width="0.65" height="694" style="fill:#a6aab2;"/>
+  <rect x="1035" y="48" width="0.65" height="694" style="fill:#a6aab2;"/>
+  <rect x="134" y="48" width="0.65" height="694" style="fill:#a6aab2;"/>
+  <rect x="1102" y="48" width="0.65" height="694" style="fill:#a6aab2;"/>
+  <rect x="18" y="742" width="1084" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="362" width="1084" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="448" width="1084" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="534" width="1084" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="556" width="1017" height="0.65" style="fill:#a6aab2;"/>
+  <rect x="18" y="598" width="1017" height="0.65" style="fill:#a6aab2;"/>
+
+  <%# ----------- GRID - END ----------- %>
+
+
+
+
+  <%# ----------- TEXT - START ----------- %>
+
+  <%# Date header table at top-left %>
+  <text transform="translate(76 72)" text-anchor="middle" style="font-size:12; fill:#484f6b; letter-spacing:0.0250244140625em; font-family:<%= fontName %>;"><%= appLang.PDF_DATE %></text>
+
+  <%# Average head table at right %>
+  <text transform="translate(1068.5 72)" style="font-size:10; fill:#4d5266; letter-spacing:0.02496337890625em; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_AVG_TEXT %></text>
+
+  <%# mmHg %>
+  <text transform="translate(132 100)" text-anchor="end" style="font-size:9; fill:#7f7f7f; font-family:<%= fontName %>;">[mmHg]</text>
+
+  <%# Text at left %>
+  <text transform="translate(100 362)" style="font-size:10; fill:#4d5266; letter-spacing:0.07501220703125em; text-anchor:middle; font-family:<%= fontName %>;">
+    <tspan x="0" y="16"><%= appLang.PDF_TIME %></tspan>
+    <tspan x="0" y="38"><%= appLang.PDF_SYS %></tspan>
+    <tspan x="0" y="58"><%= appLang.PDF_DIA %></tspan>
+    <tspan x="0" y="80"><%= appLang.PDF_PULSE %></tspan>
+    <tspan x="0" y="102"><%= appLang.PDF_TIME %></tspan>
+    <tspan x="0" y="124"><%= appLang.PDF_SYS %></tspan>
+    <tspan x="0" y="144"><%= appLang.PDF_DIA %></tspan>
+    <tspan x="0" y="166"><%= appLang.PDF_PULSE %></tspan>
+  </text>
+  <text transform="translate(76 550)" text-anchor="middle" style="font-size:10; fill:#4d5266; letter-spacing:0.0250244140625em; font-family:<%= fontName %>;"><%= appLang.PDF_CONSULTATION %></text>
+  <text transform="translate(76 582)" text-anchor="middle" style="font-size:10; fill:#4d5266; letter-spacing:0.0250244140625em; font-family:<%= fontName %>;"><%= appLang.PDF_MEDICATION %></text>
+  <text transform="translate(76 676)" text-anchor="middle" style="font-size:10; fill:#4d5266; letter-spacing:0.0250244140625em; font-family:<%= fontName %>;"><%= appLang.PDF_NOTES %></text>
+
+  <%# Text at right %>
+  <text transform="translate(1068 378)" style="font-size:10; fill:#4d5266; letter-spacing:0.02496337890625em; font-family:<%= fontName %>;"><%= appLang.PDF_AVG_TEXT %></text>
+  <text transform="translate(1068 464)" style="font-size:10; fill:#4d5266; letter-spacing:0.02496337890625em; font-family:<%= fontName %>;"><%= appLang.PDF_AVG_TEXT %></text>
+
+  <%# Morning icon at left %>
+  <%- renderMorIcon(32, 396, 1.33) %>
+
+  <%# Evening icon at left %>
+  <%- renderEveIcon(32, 482, 1.33) %>
+
+  <%# Morning icon at right %>
+  <%- renderMorIcon(1052, 367, 1.08) %>
+
+  <%# Evening icon at right %>
+  <%- renderEveIcon(1052, 453, 1.08) %>
+
+  <%# Level text at left %>
+  <text transform="translate(22 166)" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;"><%= appLang.PDF_ACHIEVEMENT_LEVEL %></text>
+  <text transform="translate(36 182)" style="font-size:9; fill:#191919; font-family:<%= fontName %>;">
+    <tspan x="0" y="0"><%= appLang.PDF_TARGET_ACHIEVED %></tspan>
+    <tspan x="0" y="13"><%= appLang.PDF_EQUAL_OR_SLIGHTLY_1 %></tspan>
+    <tspan x="0" y="26"><%= appLang.PDF_EQUAL_OR_SLIGHTLY_2 %></tspan>
+    <tspan x="0" y="39"><%= appLang.PDF_HIGHER.substring(0, 7) %></tspan>
+    <tspan x="0" y="52"><%= appLang.PDF_HIGHER.substring(7) %></tspan>
+    <tspan x="0" y="65"><%= appLang.PDF_MUCH_HIGHER.substring(0, 7) %></tspan>
+    <tspan x="0" y="78"><%= appLang.PDF_MUCH_HIGHER.substring(7) %></tspan>
+  </text>
+
+  <%# Level icon at left %>
+  <%- renderTargetAchievedIcon(22, 174, 1.2) %>
+  <%- renderEqualOrSlightlyIcon(22, 187, 1.2) %>
+  <%- renderHigherIcon(22, 212, 1.2) %>
+  <%- renderMuchHigherIcon(22, 238, 1.2) %>
+
+  <%# ----------- TEXT - END ----------- %>
+
+  <%# ----------- CHART - START ----------- %>
+
+  <%
+    // Start chart area
+    const xChart = 134;
+    const yChart = 75;
+
+    // Width of each dates
+    const wColumn = 56;
+    const wMiddleColumn = 58.5;
+
+    // Start medicines area
+    const yMedicinesIcon = 556;
+
+    // Start morning data area
+    const yMorData = 362;
+
+    // Start evening data area
+    const yEveData = 448;
+
+    // Start consultation icon area
+    const yConsultationIcon = 534;
+
+    // Start memo text area
+    const yMemoText = 598;
+
+    // For calculate average of sys, dia
+    const avgDaysData = {mor: {count: 0}, eve: {count: 0}};
+
+    // For get corresponding rendering function
+    const targetIconRenderFunction = {
+      iconTargetAchieved: renderTargetAchievedIcon,
+      iconEqual: renderEqualOrSlightlyIcon,
+      iconHigher: renderHigherIcon,
+      iconMuchHigher: renderMuchHigherIcon,
+    };
+
+    // Calculate pixel per blood pressure ratio
+    const bpGraphHeight = 300;
+    const pixelPerBpRatio = bpGraphHeight / (levelLabel[0] - levelLabel[levelLabel.length - 1]);
+    const topPseudoBpLine = levelLabel[0];
+    const bottomPseudoBpLine = levelLabel[levelLabel.length - 1];
+
+    // Remove two pseudo line out label array (matching blade.php behavior)
+    const displayLevelLabel = [...levelLabel];
+    displayLevelLabel.shift(); // Remove first element (top pseudo line)
+    displayLevelLabel.pop();   // Remove last element (bottom pseudo line)
+
+    // Function to convert the bp value to pixel
+    const bp2px = (bp) => {
+      // Calculate distance from max bp line to bp param
+      const fromTopPseudoBpLineToBp = topPseudoBpLine - bp;
+
+      // Use basic formula: pixel/bp = pixelPerBpRatio => pixel = bp*pixelPerBpRatio
+      const pixel = fromTopPseudoBpLineToBp * pixelPerBpRatio;
+      const yPositionOfBp = yChart + pixel;
+      return yPositionOfBp;
+    };
+  %>
+
+  <%# SYS target text at right %>
+  <%
+    const sysTY = bp2px(targetBp.sysT);
+    const diaTY = bp2px(targetBp.diaT);
+  %>
+  <%- renderTriangleIcon(1037, sysTY + 0.5, 1.3) %>
+  <text transform="translate(1045 <%= sysTY + 4 %>)" style="font-size:10; fill:#F7375C; font-family:<%= fontName %>;"><%= targetBp.sysT %></text>
+  <text transform="translate(1045 <%= sysTY + 15 %>)" style="font-size:10; fill:#F7375C; font-family:<%= fontName %>;"><%= appLang.PDF_LESSTHAN_TEXT %></text>
+  <text transform="translate(1038 <%= sysTY + 24 %>)" style="font-size:8; fill:#F7375C; font-family:<%= fontName %>;">
+    <tspan style="letter-spacing:-0.02001953125em"><%= appLang.PDF_YOUR_TARGET_SYS %></tspan>
+  </text>
+
+  <%# SYS target line at right %>
+  <%- renderTargetLine(134, sysTY, 1035, sysTY) %>
+
+  <% const hasTargetDia = (diaTY - sysTY) > (24 + 5 + 1); %>
+  <% if (hasTargetDia) { %>
+    <%# DIA target text at right %>
+    <%- renderTriangleIcon(1037, diaTY + 0.5, 1.3) %>
+    <text transform="translate(1045 <%= diaTY + 4 %>)" style="font-size:10; fill:#F7375C; font-family:<%= fontName %>;"><%= targetBp.diaT %></text>
+    <text transform="translate(1045 <%= diaTY + 15 %>)" style="font-size:10; fill:#F7375C; font-family:<%= fontName %>;"><%= appLang.PDF_LESSTHAN_TEXT %></text>
+
+    <% if ((diaTY + 24) < (yChart + bpGraphHeight)) { %>
+      <text transform="translate(1038 <%= diaTY + 24 %>)" style="font-size:8; fill:#F7375C; font-family:<%= fontName %>;">
+        <tspan style="letter-spacing:-0.02001953125em"><%= appLang.PDF_YOUR_TARGET_DIA %></tspan>
+      </text>
+    <% } %>
+
+    <%# DIA target line at right %>
+    <%- renderTargetLine(134, diaTY, 1035, diaTY) %>
+  <% } %>
+
+  <%# Horizontal lines on chart %>
+  <% for (let i = 0; i < displayLevelLabel.length; i++) { %>
+    <%# If level lines is not overlap target line, draw lines %>
+    <% if (![sysTY, hasTargetDia ? diaTY : -1].includes(bp2px(displayLevelLabel[i]))) { %>
+      <rect x="134" y="<%= bp2px(displayLevelLabel[i]) %>" width="901" height="0.65" style="fill:#ccc"/>
+    <% } %>
+  <% } %>
+
+  <%# Level labels at left %>
+  <% for (let i = 0; i < displayLevelLabel.length; i++) { %>
+    <%# Only draw level labels when it is betwwen the unit text(mmHg) and bottom pseudo line %>
+    <% const labelPosition = bp2px(displayLevelLabel[i]); %>
+      <% if (101.5 + 5.3 < labelPosition && labelPosition < yChart + bpGraphHeight - 5.3) { %>
+        <text x="<%= 116 + (3 - displayLevelLabel[i].toString().length) * 6 %>" y="<%= labelPosition + 4 %>" style="font-size:9; fill:#7f7f7f; font-family:<%= fontName %>;"><%= displayLevelLabel[i] %></text>
+      <% } %>
+  <% } %>
+
+  <%# Level labels at middle %>
+  <% for (let i = 0; i < displayLevelLabel.length; i++) { %>
+    <% const labelPosition = bp2px(displayLevelLabel[i]); %>
+    <% const labelWidth = displayLevelLabel[i].toString().length * 6; %>
+    <%# Only draw level labels when it is between top pseudo line and bottom pseudo line%>
+    <% if (yChart + 5.3 < labelPosition && labelPosition < yChart + bpGraphHeight - 5.3) { %>
+      <rect x="<%= 584.5 - labelWidth / 2 - 1 %>" y="<%= labelPosition - 4 %>"
+        width="<%= labelWidth + 2 %>" height="9" fill="#fff"/>
+      <text x="<%= 584.5 - displayLevelLabel[i].toString().length * 6 / 2 %>" y="<%= labelPosition + 4 %>" style="font-size:9; fill:#7f7f7f; font-family:<%= fontName %>;"><%= displayLevelLabel[i] %></text>
+    <% } %>
+  <% } %>
+
+  <%# Render sys, dia, bar, icon, memo text for each day %>
+  <%
+    // Handle both array and object cases for arrDays
+    const daysIterator = Array.isArray(arrDays) ? arrDays.entries() : Object.entries(arrDays);
+  %>
+  <% for (const [i, dayW] of daysIterator) { %>
+    <%# Position of each section %>
+    <%
+      // Start each date
+      const delta = wMiddleColumn - wColumn;
+      const xDay = xChart + i * wColumn + (i <= 7 ? 0 : (i == 8 ? delta : 2 * delta));
+      const xMiddleDay = xDay + ((i == 7 || i == 8) ? wMiddleColumn / 2 : wColumn / 2);
+    %>
+
+    <%# Dates at head table %>
+    <text transform="translate(<%= xMiddleDay %> 67)" text-anchor="middle" style="font-size:15; fill:#191919; font-family:<%= fontName %>;"><%= dayW.day %></text>
+    <text transform="translate(<%= xMiddleDay %> 80)" text-anchor="middle" style="font-size:10; fill:<%= dayW.isRed ? '#db4a86' : '#191919' %>; letter-spacing:0.07498604910714286em; font-family:<%= fontName %>;"><%= dayW.weekDays %></text>
+
+    <%# Inactive medicines icon %>
+    <% for (let j = 0; j < medicinesPerDay; j++) { %>
+      <%- renderInactiveMedicineIcon(
+          xMiddleDay - 2,
+          yMedicinesIcon + 4 + (3 - medicinesPerDay) * 5 + j * 10,
+          1.1
+      ) %>
+    <% } %>
+    <% 
+    for (let [morEve, dataBp] of Object.entries(dayW.vitals)) { %>
+      <% if (Array.isArray(dataBp)) { %>
+      <%# Sys, dia, bar %>
+        <% if (dataBp.length > 0) { %>
+          <%# Active medicines icon %>
+          <% if (morEve === 'medicines') { %>
+            <% dataBp.forEach((value, index) => { %>
+              <% 
+              if (value !== null) { %>
+                <%- renderActiveMedicineIcon(
+                    xMiddleDay - 2,
+                    yMedicinesIcon + 4 + (3 - medicinesPerDay) * 5 + index * 10,
+                    1.1
+                ) %>
+              <% } %>
+            <% }) %>
+          <% } %>
+          <%# Sys, Dia Data %>
+          <% if (morEve !== 'medicines') { %>
+            <%# Bar, text on chart %>
+            <% if (dataBp[0].systolic && dataBp[0].diastolic) { %>
+              <%
+                const width = 12;
+                const height = Math.abs(bp2px(dataBp[0].systolic) - bp2px(dataBp[0].diastolic));
+                const dataBpSys = bp2px(dataBp[0].systolic);
+              %>
+              <% if (morEve === 'mor') { %>
+                <%- renderMorBar(
+                  xMiddleDay - width - 3, dataBpSys,
+                  width, height,
+                  dataBp[0].systolic, dataBp[0].riskColorSystolic,
+                  dataBp[0].diastolic, dataBp[0].riskColorDiastolic,
+                  fontName
+                ) %>
+              <% } else { %>
+                <%- renderEveBar(
+                  xMiddleDay + 3, dataBpSys,
+                  width, height,
+                  dataBp[0].systolic, dataBp[0].riskColorSystolic,
+                  dataBp[0].diastolic, dataBp[0].riskColorDiastolic,
+                  fontName
+                ) %>
+              <% } %>
+            <% } %>
+            <%# Text, icon below chart area %>
+            <% 
+            dataBp.forEach((value) => { %>
+              <% Object.entries(value).forEach(([key, value], index) => { %>
+                <% if (!value.toString().includes('#')) { %>
+                  <% if (key !== 'riskIconSystolic' && key !== 'riskIconDiastolic') { %>
+                    <text
+                      x="<%= index === 0 ? xMiddleDay : xMiddleDay + 6 %>"
+                      y="<%= (morEve === 'mor' ? yMorData : yEveData) + 16 + index * 21.5 %>"
+                      style="font-size:<%= index === 0 ? 10 : 12 %>; fill:<%= index === 0 ? '#3F3F3F' : '#191919' %>; font-family:<%= fontName %>; text-anchor:<%= index === 0 ? 'middle' : 'end' %>"><%= value %></text>
+                    <% if (isNaN(value) || value === '') { return; } %>
+                      <% if (!avgDaysData[morEve]) { %>
+                        <% avgDaysData[morEve] = {}; %>
+                      <% } %>
+                      <% avgDaysData[morEve][key] = avgDaysData[morEve][key] ? avgDaysData[morEve][key] + parseInt(value) : parseInt(value); %>
+                    %>
+                  <% } else if (key === 'riskIconSystolic') { %>
+                    <% if (targetIconRenderFunction[value]) { %>
+                      <%- eval(targetIconRenderFunction[value])(
+                        xMiddleDay + 8,
+                        (morEve === 'mor' ? yMorData : yEveData) + 28,
+                        1.2
+                      ) %>
+                    <% } %>
+                  <% } else if (key === 'riskIconDiastolic') { %>
+                    <% if (targetIconRenderFunction[value]) { %>
+                      <%- eval(targetIconRenderFunction[value])(
+                        xMiddleDay + 8,
+                        (morEve === 'mor' ? yMorData : yEveData) + 50,
+                        1.2
+                      ) %>
+                    <% } %>
+                  <% } %>
+                <% } %>
+              <% })%>
+            <%}) %>
+            <% avgDaysData[morEve].count += 1; %>
+          <% } %>
+        <% } %>
+      <% } else { %>
+      <%# Consultation icon, memo text %>
+        <% if (morEve === 'memoMask' && dataBp === true) { %>
+          <%- renderConsultationIcon(xMiddleDay - 8, yConsultationIcon + 4, 1.2) %>
+        <% } %>
+        <% if (morEve !== 'med' && morEve !== 'memoMask') { %>
+          <% const maxWidthStr = 90; %>
+          
+          <% const arrNotes = await splitStringByWidthImg(dataBp, maxWidthStr, fontFile, 6.75);
+           %>
+          <% if (arrNotes.length > 2) {
+              arrNotes[1] = replaceFinalCharacterToEllipsisPoints(arrNotes[1]);
+              arrNotes.splice(2);
+            }
+          %>
+          <% arrNotes.forEach((noteStr, index) => { %>
+            <text transform="translate(<%= xMiddleDay + (arrNotes.length === 1 ? 0 : 5) - index * 10 %> <%= yMemoText + 4 %>) rotate(90)" style="font-size:9; fill:#191919; font-family:<%= fontName %>;"><%= noteStr %></text>
+          <% }) %>
+        <% } %>
+      <% } %>
+    <% } %>
+  <% } %>
+
+  <%# Average sys, dis at right %>
+  <% let arrRiskIcon = null; %>
+  <% const dataSysDia = { systolic: 0, diastolic: 0 }; %>
+  <% if (avgDaysData.mor.count > 0 || avgDaysData.eve.count > 0) { %>
+    <% const count = { mor: avgDaysData.mor.count, eve: avgDaysData.eve.count }; %>
+    <% for (const [morEve, dataBp] of Object.entries(avgDaysData)) { %>
+      <% for (const [key, value] of Object.entries(dataBp)) { %>
+        <% if (key !== 'count' && value !== '' && count[morEve] > 0) { %>
+          <% if (key === 'systolic') { %>
+            <% dataSysDia.systolic = Math.round(value / count[morEve]); %>
+          <% } %>
+          <% if (key === 'diastolic') { %>
+            <% dataSysDia.diastolic = Math.round(value / count[morEve]); %>
+          <% } %>
+        <% } %>
+      <% } %>
+      <% if (dataSysDia.systolic && dataSysDia.diastolic) { %>
+        <% arrRiskIcon = await getRiskColorAndRiskIcon1(dataSysDia.systolic, dataSysDia.diastolic, userId); %>
+      <% } %>
+      <% let index = 1; %>
+      <% for (const [key, value] of Object.entries(dataBp)) { %>
+        <% if (key !== 'count' && value !== '' && count[morEve] > 0) { %>
+          <text transform="translate(1072 <%= (morEve === 'mor' ? yMorData : yEveData) + 16 + index * 21.5 %>)" style="font-size:12; fill:#191919; text-anchor:end; font-family:<%= fontName %>;">
+            <%= Math.round(value / count[morEve]) %>
+          </text>
+          <% index++; %>
+        <% } %>
+        <% if (arrRiskIcon && key === 'systolic' && targetIconRenderFunction[arrRiskIcon.riskIconSystolic]) { %>
+          <%- eval(targetIconRenderFunction[arrRiskIcon.riskIconSystolic])(1074, (morEve === 'mor' ? yMorData : yEveData) + 28, 1.2) %>
+        <% } %>
+        <% if (arrRiskIcon && key === 'diastolic' && targetIconRenderFunction[arrRiskIcon.riskIconDiastolic]) { %>
+          <%- eval(targetIconRenderFunction[arrRiskIcon.riskIconDiastolic])(1074, (morEve === 'mor' ? yMorData : yEveData) + 50, 1.2) %>
+        <% } %>
+      <% } %>
+    <% } %>
+  <% } %>
+
+  <%# ----------- CHART - END ----------- %>
+
+  <%# ----------- FOOTER - START ----------- %>
+
+  <%# Square icon at bottom left %>
+  <rect x="18" y="750" width="10" height="10" rx="1" ry="1" style="fill:#fff; stroke:#7e84a0; stroke-width:0.5; stroke-opacity:0.5;"/>
+  <rect x="18" y="764" width="10" height="10" rx="1" ry="1" style="fill:#7e84a0"/>
+
+  <%# Morning icon at footer %>
+  <%- renderMorIcon(32, 748, 0.9) %>
+
+  <%# Evening icon at footer %>
+  <%- renderEveIcon(32, 762, 0.9) %>
+
+  <%# Text at footer %>
+  <text transform="translate(48 748)" style="font-size:9; fill:#4d5266; font-family:<%= fontName %>;">
+    <tspan x="0" y="10"><%= appLang.PDF_FOOTER_LINE3 %></tspan>
+    <tspan x="0" y="24"><%= appLang.PDF_FOOTER_LINE4 %></tspan>
+  </text>
+  <% 
+    const morEndOver = `${timeOverday.morEnd ? appLang.PDF_NEXT_DAY : ''}${timePeriod.morEnd}`;
+    const eveStartOver = `${timeOverday.eveStart ? appLang.PDF_NEXT_DAY : ''}${timePeriod.eveStart}`;
+    const eveEndOver = `${timeOverday.eveEnd ? appLang.PDF_NEXT_DAY : ''}${timePeriod.eveEnd}`;
+  %>
+  <text transform="translate(210 748)" style="font-size:9; fill:#191919; font-family:<%= fontName %>;">
+  <tspan x="0" y="10"><%= 
+      appLang.PDF_FOOTER_LINE3_2.replace(
+          'mor_start', timePeriod.morStart
+      ).replace(
+          'mor_end', morEndOver
+      )
+  %></tspan>
+  <tspan x="0" y="24"><%= 
+      appLang.PDF_FOOTER_LINE4_2.replace(
+          'eve_start', eveStartOver
+      ).replace(
+          'eve_end', eveEndOver
+      )
+  %></tspan>
+  </text>
+
+
+  <%# Three dots icon at footer %>
+  <%- renderDotIcon(196, 755, 1.4) %>
+  <%- renderDotIcon(200, 755, 1.4) %>
+  <%- renderDotIcon(204, 755, 1.4) %>
+
+  <%- renderDotIcon(196, 769, 1.4) %>
+  <%- renderDotIcon(200, 769, 1.4) %>
+  <%- renderDotIcon(204, 769, 1.4) %>
+
+  <%# ----------- FOOTER - END ----------- %>
+
+  <%# ----------- COMMON - START ----------- %>
+
+  <%# Common partials view %>
+  <%- await include(`/opt/resources/views/svg${subBlade}/template/common.ejs`, {
+    PDF_TITLE: appLang.PDF_TITLE,
+    PDF_DATE: dateFrom + appLang.PDF_DATE_SEPARATE + dateTo,
+    PDF_NAME: appLang.PDF_NAME + userName,
+    PDF_CREATE_TIME: appLang.PDF_DATE_CREATE + timeCreate,
+    PDF_PAGE: appLang.PDF_PAGE + indexPage + '/' + totalPage + 'ページ',
+  }) %>
+
+  <%# ----------- COMMON - END ----------- %>
+</svg>

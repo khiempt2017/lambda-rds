@@ -1,0 +1,158 @@
+<%# 
+  * day_mode_a_head_sheet.ejs
+  * NewBP
+  *
+  * Created by KhiemPT on 2025/09/15.
+  * Copyright (c) 2025 OMRON HEALTHCARE Co.,Ltd. All rights reserved.
+%>
+<%
+const headerHeight = 21;
+const rowHeight = 30.5;
+
+const yTable = startY + 150;
+const tableWidth = 524;
+const tableHeight = headerHeight + rowHeight * 16;
+
+const dateColumnWidth = 88;
+const timeColumnWidth = 60;
+const dataColumnWidth = 150;
+const iconColumnWidth = 42;
+const medicinesColumnWidth = 46;
+const memoColumnWidth = tableWidth - dateColumnWidth - timeColumnWidth - dataColumnWidth - iconColumnWidth - medicinesColumnWidth;
+
+const notesAreaWidth = 212;
+%>
+
+<%# ----------- DESCRIPTION - START ----------- %>
+
+<%# Grid %>
+<rect x="<%= startX %>" y="<%= startY %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2;"/>
+<rect x="<%= startX %>" y="<%= startY %>" width="50" height="20" style="fill:#c1c6d5; opacity:0.2;"/>
+<rect x="<%= startX + notesAreaWidth + 35 %>" y="<%= startY %>" width="70" height="20" style="fill:#c1c6d5; opacity:0.2;"/>
+<rect x="<%= startX + notesAreaWidth + 35 %>" y="<%= startY %>" width="0.65" height="140" style="fill:#a6aab2;"/>
+
+<%# Text at grey rectangle %>
+<text transform="translate(<%= startX + 6 %> <%= startY + 10 + 5 %>)" style="font-size:10; fill:#4d5266; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_HINT_DETECT_INFOMATION %></text>
+<text transform="translate(<%= startX + notesAreaWidth + 35 + 6 %> <%= startY + 10 + 5 %>)" style="font-size:10; fill:#4d5266; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_HIND_NOTES %></text>
+
+<%# Icon and text at left %>
+<%- renderMeasurementErrorIcon(startX + 6, startY + 20 + 5, 1.3) %>
+
+<text transform="translate(<%= startX + 26 %> <%= startY + 20 + 15 %>)" style="font-size:10; fill:#191919; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_HINT_MEASUREMENT_ERROR %></text>
+<text transform="translate(<%= startX + 26 %> <%= startY + 20 + 26 %>)" style="font-size:7; font-family:<%= fontName %>;">
+  <tspan x="0" y="0"><%= appLang.PDF_WEEK_HINT_MEASUREMENT_ERROR_DESC_1 %></tspan>
+  <tspan x="0" y="8"><%= appLang.PDF_WEEK_HINT_MEASUREMENT_ERROR_DESC_2 %></tspan>
+</text>
+
+<%- renderIrregularHeartbeatIcon(startX + 6, startY + 20 + 42, 1.3) %>
+
+<text transform="translate(<%= startX + 26 %> <%= startY + 20 + 52 %>)" style="font-size:10; fill:#191919; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_HINT_IRREGULAR_HEARTBEAT %></text>
+<text transform="translate(<%= startX + 26 %> <%= startY + 20 + 63 %>)" style="font-size:7; font-family:<%= fontName %>;">
+  <tspan x="0" y="0"><%= appLang.PDF_WEEK_HINT_IRREGULAR_HEARTBEAT_DESC_1 %></tspan>
+  <tspan x="0" y="8"><%= appLang.PDF_WEEK_HINT_IRREGULAR_HEARTBEAT_DESC_2 %></tspan>
+</text>
+
+<%- renderAfibIcon(startX + 6, startY + 20 + 79, 1.3) %>
+
+<text transform="translate(<%= startX + 26 %> <%= startY + 20 + 89 %>)" style="font-size:10; fill:#191919; font-family:<%= fontName %>;"><%= appLang.PDF_WEEK_HINT_AFIB %></text>
+<text transform="translate(<%= startX + 26 %> <%= startY + 20 + 100 %>)" style="font-size:7; font-family:<%= fontName %>;">
+  <tspan x="0" y="0"><%= appLang.PDF_WEEK_HINT_AFIB_DESC_1 %></tspan>
+  <tspan x="0" y="10"><%= appLang.PDF_WEEK_HINT_AFIB_DESC_2 %></tspan>
+</text>
+
+<%# Icon and text at right - Left column %>
+<%
+const leftColumnIcons = [
+  { name: 'exercise', renderFunction: 'renderExerciseIcon', descKey: 'PDF_WEEK_HINT_EXCERCISE' },
+  { name: 'unSalt', renderFunction: 'renderUnsaltIcon', descKey: 'PDF_WEEK_HINT_REDUCING_SALT' },
+  { name: 'veggie', renderFunction: 'renderVeggieIcon', descKey: 'PDF_WEEK_HINT_VEGETABLES' },
+  { name: 'unDrink', renderFunction: 'renderUnalcoholIcon', descKey: 'PDF_WEEK_HINT_NO_ALCOHOL' },
+  { name: 'sleep', renderFunction: 'renderSleepIcon', descKey: 'PDF_WEEK_HINT_SLEEP' },
+  { name: 'unSmoking', renderFunction: 'renderUnsmokingIcon', descKey: 'PDF_WEEK_HINT_NOT_SMOKING' },
+  { name: 'hospital', renderFunction: 'renderHospitalIcon', descKey: 'PDF_WEEK_HINT_CONSULTATION' },
+];
+
+const rightColumnIcons = [
+  { name: 'unExercise', renderFunction: 'renderUnexerciseIcon', descKey: 'PDF_WEEK_HINT_LACK_OF_EXCERCISE' },
+  { name: 'salt', renderFunction: 'renderSaltIcon', descKey: 'PDF_WEEK_HINT_SALT' },
+  { name: 'unVeggie', renderFunction: 'renderUnveggieIcon', descKey: 'PDF_WEEK_HINT_LESS_VEGETABLES' },
+  { name: 'drink', renderFunction: 'renderAlcoholIcon', descKey: 'PDF_WEEK_HINT_ALCOHOL' },
+  { name: 'unSleep', renderFunction: 'renderUnsleepIcon', descKey: 'PDF_WEEK_HINT_LACK_OF_SLEEP' },
+  { name: 'smoking', renderFunction: 'renderSmokingIcon', descKey: 'PDF_WEEK_HINT_SMOKING' },
+];
+%>
+
+<%# Icon and text at right - using mode B layout with mode A order %>
+<%
+// Create array with mode A order: left column first, then right column
+const allRightIcons = [];
+const maxRows = Math.max(leftColumnIcons.length, rightColumnIcons.length);
+
+for (let row = 0; row < maxRows; row++) {
+  if (leftColumnIcons[row]) allRightIcons.push(leftColumnIcons[row]);
+  if (rightColumnIcons[row]) allRightIcons.push(rightColumnIcons[row]);
+}
+%>
+
+<% allRightIcons.forEach((icon, i) => { %>
+  <%- eval(icon.renderFunction)(
+    startX + notesAreaWidth + 35 + 15 + (i % 2) * ((tableWidth - notesAreaWidth) / 2 - 4),
+    startY + 20 + 5 + Math.floor(i / 2) * 16,
+    1.2
+  ) %>
+  <text transform="translate(<%= startX + notesAreaWidth + 35 + 15 + (i % 2) * ((tableWidth - notesAreaWidth) / 2 - 6) + 20 %> <%= startY + 20 + 16 + Math.floor(i / 2) * 16 %>)" style="font-size:10; fill:#191919; font-family:<%= fontName %>;">
+    <%= appLang[icon.descKey] %>
+  </text>
+<% }) %>
+
+<%# ----------- DESCRIPTION - END ----------- %>
+
+<%# ----------- DATA - START ----------- %>
+
+<%# Rectangle area %>
+<rect x="<%= startX %>" y="<%= yTable %>" width="<%= tableWidth %>" height="<%= headerHeight %>" style="fill:#c1c6d5; opacity:0.2;"/>
+<rect x="<%= startX %>" y="<%= yTable + headerHeight %>" width="<%= dateColumnWidth + timeColumnWidth %>" height="<%= tableHeight - headerHeight %>" style="fill:#c1c6d5; opacity:0.2;"/>
+
+<%# Horizontal lines %>
+<rect x="<%= startX %>" y="<%= yTable %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2"/>
+<rect x="<%= startX %>" y="<%= yTable + headerHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2"/>
+<rect x="<%= startX %>" y="<%= yTable + tableHeight %>" width="<%= tableWidth %>" height="0.65" style="fill:#a6aab2;"/>
+
+<%# Vertical lines %>
+<rect x="<%= startX %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d="M <%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth / 3 + 5 %> <%= yTable %> V <%= yTable + tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<path fill="none" stroke="#a6aab2" paint-order="fill stroke markers" d="M <%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) * 2 %> <%= yTable %> v <%= tableHeight %>" stroke-linecap="square" stroke-miterlimit="10" stroke-width="0.65" stroke-dasharray="1.5,4"></path>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2;"/>
+<rect x="<%= startX + tableWidth %>" y="<%= yTable %>" width="0.65" height="<%= tableHeight %>" style="fill:#a6aab2"/>
+
+<%# Text at header of table %>
+<text transform="translate(<%= startX + dateColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DATE %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_TIME %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_SYS %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) * 3 / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DIA %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + (dataColumnWidth / 3 + 5) * 2 + (dataColumnWidth - (dataColumnWidth / 3 + 5) * 2) / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_PULSE %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_DI %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_MED %></text>
+<text transform="translate(<%= startX + dateColumnWidth + timeColumnWidth + dataColumnWidth + iconColumnWidth + medicinesColumnWidth + memoColumnWidth / 2 %> <%= yTable + headerHeight / 2 + 5 %>)" style="font-size:10;; fill:#4d5266; font-family:<%= fontName %>;" text-anchor="middle"><%= appLang.PDF_WEEK_NOTES %></text>
+
+<%# Data at content of table %>
+<%- await include(`/opt/resources/views/svg${subBlade}/week_template/day_mode_a_table.ejs`, {
+  headerHeight,
+  rowHeight,
+  yTable,
+  tableWidth,
+  tableHeight,
+  dateColumnWidth,
+  timeColumnWidth,
+  dataColumnWidth,
+  iconColumnWidth,
+  medicinesColumnWidth,
+  memoColumnWidth,
+  iconList: allRightIcons
+}) %>
+
+<%# ----------- DATA - END ----------- %>

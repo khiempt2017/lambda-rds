@@ -1,0 +1,60 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# License-Identifier: MIT
+# Created by: KhiemPT <khiempt@vitalify.asia> on 2025/03/30
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for WAF
+Parameters:
+  Stage:
+    Type: String
+    Description: Refers to the operational state of your resources
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+      - test
+  ProjectId:
+    Type: String
+    Description: ProjectId used to associate new resources to team members
+    Default: BP-api-serverless
+Resources:
+  MaintainWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Scope: REGIONAL
+      Name: 
+        Fn::Sub: "${ProjectId}-${Stage}-web-acl-maintenance"
+      DefaultAction:
+        Allow: {}
+      Description: "Web ACL for maintenance"
+      Rules: []
+      VisibilityConfig:  
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: "MyWebACLMetrics"  # Associate WAF with API Gateway
+  ApiGatewayWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Scope: REGIONAL
+      Name: !Sub "${ProjectId}-${Stage}-web-acl"
+      DefaultAction:
+        Allow: {}
+      Description: "Web ACL for API Gateway"
+      Rules: []
+      VisibilityConfig:  
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: "ApiGatewayWebACLMetrics"  # Associate WAF with API Gateway
+  MyApiGatewayWafAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn: !Join 
+        - ""
+        - - "arn:aws:apigateway:"
+          - !Ref "AWS::Region"
+          - "::/restapis/"
+          - !ImportValue 
+            Fn::Sub: ${AWS::Region}-${Stage}-RestApiArn
+          - "/stages/"
+          - !Ref Stage
+      WebACLArn: !GetAtt ApiGatewayWebACL.Arn
