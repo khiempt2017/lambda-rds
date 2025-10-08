@@ -71,9 +71,8 @@ export const defaultMails: MailsData = {
  */
 export class MailsMySQLModel extends MySQLModel<Mails> {
   constructor() {
-    // Determine table name based on environment stage
-    const stage = process.env.STAGE || 'local';
-    const tableName = stage === 'local' ? 'mails' : `BPDiary_mails_${stage}`;
+    // Use simple table name for MySQL (not like DynamoDB with stage suffix)
+    const tableName = 'mails';
     super(tableName);
   }
 
