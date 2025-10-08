@@ -137,8 +137,8 @@ Resources:
         SecurityGroupIds: 
           - !Ref SecurityGroupId #get from vpc terraform
         SubnetIds:
-          - !Ref PublicSubnet1 #get from vpc terraform
-          - !Ref PublicSubnet2 #get from vpc terraform
+          - !Ref PublicSubNetId1 #get from vpc terraform
+          - !Ref PublicSubNetId2 #get from vpc terraform
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
