@@ -16,7 +16,12 @@ phases:
       - |
         mkdir -p dist/src-layers/nodejs
         mkdir -p dist/src-layers/public
-        mkdir -p dist/src-layers/resources
+      
+      # Copy package files to nodejs directory (Lambda Layer structure)
+      # Copy layer files
+      - cp -r src-layers/package*.json dist/src-layers/nodejs/
+      - cp -a src-layers/public/* dist/src-layers/public/
+      - cd dist/src-layers/nodejs && npm install && cd -
       
       # Create the S3 bucket if it does not exist
       - |
