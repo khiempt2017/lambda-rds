@@ -45,64 +45,11 @@ Globals:
       Variables:
         STAGE: !Ref Stage
         REGION: !Ref AWS::Region
-        AWS_COGNITO_USER_POOL_ID: 
-          !If
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:user-pool-id}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:user-pool-id}}'
-        AWS_COGNITO_REGION: 
-          !If
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:cognito-region}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:cognito-region}}'
-        OGSC_URL: 
-          !If
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:ogsc-cognito-url}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:ogsc-cognito-url}}'
-        APP_KEY: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:app-key}}'
-        PROJECT_ID: !Ref ProjectId
-        X_KII_APP_KEY: !If
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:x-kii-app-key}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:x-kii-app-key}}'
-        X_KII_APP_ID: !If 
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:x-kii-app-id}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:x-kii-app-id}}'
-        OGSC_ADMIN_USERNAME: !If 
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:ogsc-admin-user-name}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:ogsc-admin-user-name}}'
-        OGSC_ADMIN_PASSWORD: !If 
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:ogsc-admin-password}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:ogsc-admin-password}}'
-        TOKEN_OGSC_URL: !If 
-          - IsDevOrStg
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:token-ogsc-url}}'
-          - !Sub '{{resolve:secretsmanager:${ProjectId}-prod-secrets:SecretString:token-ogsc-url}}'
-        AWS_BUCKET_S3_CSV: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:aws-bucket-s3-csv}}'
-        AWS_ACCOUNT_ID: !Ref AWS::AccountId
-        SMTP_USER: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-user}}'
-        SMTP_PASSWORD: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-password}}'
-        SMTP_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-host}}'
-        SMTP_PORT: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:smtp-port}}'
-        MAIL_FROM: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:mail-from}}'
-        BP_STATIC_URL: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:bp-static-url}}'
-        APP_URL: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:app-url}}'
-        CLIENT_ID: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:client-id}}'
-        CLIENT_SECRET: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:client-secret}}'
-        REDIRECT_URI: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:redirect-uri}}'
-        BP_API_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:domain-name}}'
-        DB_TYPE: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:db-type}}'
         MYSQL_HOST: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-host}}'
         MYSQL_PORT: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-port}}'
         MYSQL_DATABASE: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-database}}'
         MYSQL_USER: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-user}}'
         MYSQL_PASSWORD: !Sub '{{resolve:secretsmanager:${ProjectId}-${Stage}-secrets:SecretString:mysql-password}}'
-        MYSQL_CONNECTION_LIMIT: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:mysql-connection-limit}}'
-        MYSQL_TIMEZONE: !Sub '{{resolve:secretsmanager:${ProjectId}-common-secrets:SecretString:mysql-timezone}}'
     AutoPublishAlias: live
     Tags:
       Name: !Ref ProjectId
@@ -175,6 +122,12 @@ Resources:
             Path: /api/get-greetings
             Method: get
             RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - Fn::Sub: "${ProjectId}-${Stage}-security-group" #get from vpc terraform
+        SubnetIds:
+          - Fn::Sub: "${ProjectId}-${Stage}-public_subnet-1" #get from vpc terraform
+          - Fn::Sub: "${ProjectId}-${Stage}-public_subnet-2" #get from vpc terraform
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
