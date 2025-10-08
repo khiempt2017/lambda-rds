@@ -15,7 +15,6 @@ phases:
       # Create necessary directories
       - |
         mkdir -p dist/src-layers/nodejs
-        mkdir dist/src/api-send_email_batch
         mkdir -p dist/src-layers/public
         mkdir -p dist/src-layers/resources
       
