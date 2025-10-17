@@ -27,6 +27,14 @@ Parameters:
     Type: String
     Description: Public subnet 2
     Default: subnet-2
+  PrivateSubNetId1:
+    Type: String
+    Description: Private subnet 1
+    Default: subnet-3
+  PrivateSubNetId2:
+    Type: String
+    Description: Private subnet 2
+    Default: subnet-4
   SecurityGroupId:
     Type: String
     Description: Security group id
@@ -137,8 +145,8 @@ Resources:
         SecurityGroupIds: 
           - !Ref SecurityGroupId #get from vpc terraform
         SubnetIds:
-          - !Ref PublicSubNetId1 #get from vpc terraform
-          - !Ref PublicSubNetId2 #get from vpc terraform
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
