@@ -145,12 +145,12 @@ Resources:
             Path: /api/get-greetings
             Method: get
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      # VpcConfig:
+      #   SecurityGroupIds: 
+      #     - !Ref SecurityGroupId #get from vpc terraform
+      #   SubnetIds:
+      #     - !Ref PrivateSubNetId1 #get from vpc terraform
+      #     - !Ref PrivateSubNetId2 #get from vpc terraform
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
