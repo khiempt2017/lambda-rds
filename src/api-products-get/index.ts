@@ -21,7 +21,7 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const queryStringParameters = event.queryStringParameters || {};
     
     const { id } = pathParameters;
-    const { category_id, brand, search, limit, offset } = queryStringParameters;
+    const { category_id, brand, search, status, limit, offset } = queryStringParameters;
     
     LoggerService.logInfo(`Path: ${event.path}, Query: ${JSON.stringify(queryStringParameters)}`);
     
@@ -58,6 +58,11 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
     if (brand) {
       whereConditions.push('p.brand = ?');
       params.push(brand);
+    }
+    
+    if (status !== undefined && status !== null) {
+      whereConditions.push('p.status = ?');
+      params.push(parseInt(status));
     }
     
     if (search) {
