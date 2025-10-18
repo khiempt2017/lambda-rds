@@ -29,6 +29,40 @@ export class BaseMySQLService<T = any> {
     return this.model.getTableName();
   }
 
+  /**
+   * Get records with dynamic WHERE conditions
+   * @param whereConditions - Dynamic WHERE conditions array
+   * @param limit - Optional limit
+   * @param offset - Optional offset
+   * @param params - Optional parameters for WHERE conditions
+   * @returns Array of records
+   */
+  public async get(
+    whereConditions: string[] = [],
+    limit?: number,
+    offset?: number,
+    params: any[] = []
+  ): Promise<T[]> {
+    let sql = `SELECT * FROM ${this.model.getTableName()}`;
+    const queryParams: any[] = [...params];
+
+    if (whereConditions.length > 0) {
+      sql += ` WHERE ${whereConditions.join(' AND ')}`;
+    }
+
+    if (limit !== undefined) {
+      sql += ' LIMIT ?';
+      queryParams.push(limit);
+
+      if (offset !== undefined) {
+        sql += ' OFFSET ?';
+        queryParams.push(offset);
+      }
+    }
+
+    return await this.model.query<T[]>(sql, queryParams) as T[];
+  }
+
   // ==================== READ OPERATIONS ====================
 
   /**

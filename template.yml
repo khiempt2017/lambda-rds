@@ -145,12 +145,234 @@ Resources:
             Path: /api/get-greetings
             Method: get
             RestApiId: !Ref MyRestApi
-      # VpcConfig:
-      #   SecurityGroupIds: 
-      #     - !Ref SecurityGroupId #get from vpc terraform
-      #   SubnetIds:
-      #     - !Ref PrivateSubNetId1 #get from vpc terraform
-      #     - !Ref PrivateSubNetId2 #get from vpc terraform
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  # Products APIs
+  ProductsGet:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-products-get'
+      CodeUri: ./dist/src/api-products-get
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/products
+            Method: get
+            RestApiId: !Ref MyRestApi
+        ApiEventWithId:
+          Type: Api
+          Properties:
+            Path: /api/products/{id}
+            Method: get
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  ProductsPost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-products-post'
+      CodeUri: ./dist/src/api-products-post
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/products
+            Method: post
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  ProductsPut:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-products-put'
+      CodeUri: ./dist/src/api-products-put
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/products/{id}
+            Method: put
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  ProductsDelete:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-products-delete'
+      CodeUri: ./dist/src/api-products-delete
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/products/{id}
+            Method: delete
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  # Categories APIs
+  CategoriesGet:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-categories-get'
+      CodeUri: ./dist/src/api-categories-get
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/categories
+            Method: get
+            RestApiId: !Ref MyRestApi
+        ApiEventWithId:
+          Type: Api
+          Properties:
+            Path: /api/categories/{id}
+            Method: get
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  CategoriesPost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-categories-post'
+      CodeUri: ./dist/src/api-categories-post
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/categories
+            Method: post
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  CategoriesPut:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-categories-put'
+      CodeUri: ./dist/src/api-categories-put
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/categories/{id}
+            Method: put
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  CategoriesDelete:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-categories-delete'
+      CodeUri: ./dist/src/api-categories-delete
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/categories/{id}
+            Method: delete
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda

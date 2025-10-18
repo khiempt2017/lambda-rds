@@ -122,8 +122,53 @@ CREATE TABLE IF NOT EXISTS `withdrawal_user` (
   KEY `idx_withdrawal_date` (`withdrawal_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Categories Table
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_name` (`name`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Products Table
+CREATE TABLE IF NOT EXISTS `products` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `category_id` BIGINT UNSIGNED NOT NULL,
+  `brand` VARCHAR(255) NOT NULL,
+  `price` DECIMAL(15,2) NOT NULL,
+  `description` TEXT NULL,
+  `image` VARCHAR(500) NULL,
+  `processor` VARCHAR(255) NULL,
+  `ram` VARCHAR(100) NULL,
+  `storage` VARCHAR(100) NULL,
+  `screen` VARCHAR(100) NULL,
+  `graphics` VARCHAR(255) NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`),
+  KEY `idx_brand` (`brand`),
+  KEY `idx_status` (`status`),
+  KEY `idx_price` (`price`),
+  KEY `idx_name` (`name`),
+  CONSTRAINT `fk_products_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Add indexes for performance
 -- Already added above in table definitions
+
+-- Insert dummy data for categories
+INSERT IGNORE INTO `categories` (`id`, `name`, `description`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Apple', 'Apple laptops and devices', 1, NOW(), NOW()),
+(2, 'HP', 'HP laptops and computers', 1, NOW(), NOW()),
+(3, 'Lenovo', 'Lenovo laptops and computers', 1, NOW(), NOW());
 
 -- Notes:
 -- 1. All tables use InnoDB engine for ACID compliance and foreign key support
@@ -132,4 +177,5 @@ CREATE TABLE IF NOT EXISTS `withdrawal_user` (
 -- 4. Original DynamoDB keys are preserved as unique indexes
 -- 5. Timestamps are stored as DATETIME for consistency
 -- 6. Adjust field types and sizes as needed for your specific use case
+-- 7. Products table has foreign key relationship with categories table
 

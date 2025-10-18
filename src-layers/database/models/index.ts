@@ -10,3 +10,5 @@ export * from './banner-management.model';
 export * from './diaries.model';
 export * from './mails-clone.model';
 export * from './mails-mysql.model';
+export * from './products-mysql.model';
+export * from './categories-mysql.model';

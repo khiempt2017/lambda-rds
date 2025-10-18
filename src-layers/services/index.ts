@@ -8,3 +8,5 @@
 export * from './logger.service';
 export * from './base-mysql.service';
 export * from './mails-mysql.service';
+export * from './products-mysql.service';
+export * from './categories-mysql.service';
