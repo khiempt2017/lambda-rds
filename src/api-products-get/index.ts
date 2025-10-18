@@ -21,7 +21,7 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const queryStringParameters = event.queryStringParameters || {};
     
     const { id } = pathParameters;
-    const { category_id, brand, search, status, limit, offset } = queryStringParameters;
+    const { category_id, brand, name, status, limit, offset } = queryStringParameters;
     
     LoggerService.logInfo(`Path: ${event.path}, Query: ${JSON.stringify(queryStringParameters)}`);
     
@@ -65,10 +65,10 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
       params.push(parseInt(status));
     }
     
-    if (search) {
-      whereConditions.push('(p.name LIKE ? OR p.description LIKE ?)');
-      const searchPattern = `%${search}%`;
-      params.push(searchPattern, searchPattern);
+    if (name) {
+      whereConditions.push('p.name LIKE ?');
+      const searchPattern = `%${name}%`;
+      params.push(searchPattern);
     }
     
     // Build SQL with JOIN
