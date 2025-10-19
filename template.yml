@@ -73,6 +73,8 @@ Globals:
         MYSQL_DATABASE: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_DATABASE}}'
         MYSQL_USER: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_USER}}'
         MYSQL_PASSWORD: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_PASSWORD}}'
+        JWT_SECRET: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:JWT_SECRET}}'
+        JWT_EXPIRES_IN: '24h'
     AutoPublishAlias: live
     Tags:
       Name: !Ref ProjectId
@@ -366,6 +368,33 @@ Resources:
           Properties:
             Path: /api/categories/{id}
             Method: delete
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  # Auth APIs
+  AuthLogin:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-auth-login'
+      CodeUri: ./dist/src/api-auth-login
+      Handler: index.main
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/auth/login
+            Method: post
             RestApiId: !Ref MyRestApi
       VpcConfig:
         SecurityGroupIds: 

@@ -200,3 +200,13 @@ export const EMAIL_NOT_FOUND = 'Not found email';
 export const DELETE_EMAIL_ERROR = 'Error occurred while deleting email';
 
 export const WRONG_USER_ID = 'Wrong user_id';
+
+// Authentication messages
+export const INVALID_CREDENTIALS = 'Invalid email or password';
+export const UNAUTHORIZED = 'Unauthorized access';
+export const TOKEN_EXPIRED = 'Token has expired';
+export const INVALID_TOKEN = 'Invalid token';
+export const MISSING_TOKEN = 'Missing authorization token';
+export const LOGIN_SUCCESS = 'Login successful';
+export const USER_NOT_FOUND = 'User not found';
+export const USER_INACTIVE = 'User account is inactive';

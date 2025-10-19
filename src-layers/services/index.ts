@@ -10,3 +10,4 @@ export * from './base-mysql.service';
 export * from './mails-mysql.service';
 export * from './products-mysql.service';
 export * from './categories-mysql.service';
+export * from './users-mysql.service';

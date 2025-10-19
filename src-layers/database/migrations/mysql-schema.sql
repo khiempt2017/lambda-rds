@@ -122,6 +122,22 @@ CREATE TABLE IF NOT EXISTS `withdrawal_user` (
   KEY `idx_withdrawal_date` (`withdrawal_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Users Table
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `full_name` VARCHAR(255) NOT NULL,
+  `role` VARCHAR(50) NOT NULL DEFAULT 'admin',
+  `status` TINYINT NOT NULL DEFAULT 1,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_email` (`email`),
+  KEY `idx_role` (`role`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Categories Table
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -164,6 +180,12 @@ CREATE TABLE IF NOT EXISTS `products` (
 -- Add indexes for performance
 -- Already added above in table definitions
 
+-- Insert dummy data for users
+INSERT IGNORE INTO `users` (`id`, `email`, `password`, `full_name`, `role`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'admin@example.com', 'admin123', 'Administrator', 'admin', 1, NOW(), NOW()),
+(2, 'manager@example.com', 'manager123', 'Manager User', 'admin', 1, NOW(), NOW());
+(3, 'user@example.com', 'user123', 'User', 'user', 1, NOW(), NOW());
+
 -- Insert dummy data for categories
 INSERT IGNORE INTO `categories` (`id`, `name`, `description`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Apple', 'Apple laptops and devices', 1, NOW(), NOW()),
@@ -178,4 +200,6 @@ INSERT IGNORE INTO `categories` (`id`, `name`, `description`, `status`, `created
 -- 5. Timestamps are stored as DATETIME for consistency
 -- 6. Adjust field types and sizes as needed for your specific use case
 -- 7. Products table has foreign key relationship with categories table
+-- 8. Users table stores passwords in plain text (not recommended for production)
+-- 9. Users table has role field with default value 'admin' (supports 'admin' and 'user' roles)
 

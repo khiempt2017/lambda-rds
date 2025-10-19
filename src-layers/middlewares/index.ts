@@ -10,6 +10,6 @@ import loggingMiddleware from './logging.middleware';
 // import authenticationMiddleware from './authentication.middleware';
 import interceptorMiddleware from './interceptor.middleware';
 import validatorMiddleware from './validator.middleware';
-import authenticationBase64Middleware from './authenticationbase64.middleware';
+import authenticationMiddleware from './authentication.middleware';
 
-export { middy, doNotWaitForEmptyEventLoop, interceptorMiddleware, loggingMiddleware, validatorMiddleware, authenticationBase64Middleware };
+export { middy, doNotWaitForEmptyEventLoop, interceptorMiddleware, loggingMiddleware, validatorMiddleware, authenticationMiddleware };

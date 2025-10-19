@@ -6,7 +6,7 @@
 */
 
 import { LoggerService, ProductsMySQLService } from '/opt/services';
-import { middy, doNotWaitForEmptyEventLoop, interceptorMiddleware, loggingMiddleware } from '/opt/middlewares';
+import { middy, doNotWaitForEmptyEventLoop, interceptorMiddleware, loggingMiddleware, authenticationMiddleware } from '/opt/middlewares';
 import { responseSuccess, responseError } from '/opt/shared';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
@@ -114,6 +114,7 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
 const handler = middy(lambdaHandler)
   .use(interceptorMiddleware())
+  .use(authenticationMiddleware())
   .use(loggingMiddleware())
   .use(doNotWaitForEmptyEventLoop({ runOnError: true }))
 
