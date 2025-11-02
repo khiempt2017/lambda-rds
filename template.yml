@@ -145,12 +145,7 @@ Resources:
             Path: /api/get-greetings
             Method: get
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   # Products APIs
   ProductsGet:
@@ -178,12 +173,7 @@ Resources:
             Path: /api/products/{id}
             Method: get
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   ProductsPost:
     Type: AWS::Serverless::Function
@@ -204,12 +194,7 @@ Resources:
             Path: /api/products
             Method: post
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   ProductsPut:
     Type: AWS::Serverless::Function
@@ -230,12 +215,7 @@ Resources:
             Path: /api/products/{id}
             Method: put
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   ProductsDelete:
     Type: AWS::Serverless::Function
@@ -256,12 +236,7 @@ Resources:
             Path: /api/products/{id}
             Method: delete
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   # Categories APIs
   CategoriesGet:
@@ -289,12 +264,7 @@ Resources:
             Path: /api/categories/{id}
             Method: get
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   CategoriesPost:
     Type: AWS::Serverless::Function
@@ -315,12 +285,7 @@ Resources:
             Path: /api/categories
             Method: post
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   CategoriesPut:
     Type: AWS::Serverless::Function
@@ -341,12 +306,7 @@ Resources:
             Path: /api/categories/{id}
             Method: put
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
 
   CategoriesDelete:
     Type: AWS::Serverless::Function
@@ -367,12 +327,7 @@ Resources:
             Path: /api/categories/{id}
             Method: delete
             RestApiId: !Ref MyRestApi
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref SecurityGroupId #get from vpc terraform
-        SubnetIds:
-          - !Ref PrivateSubNetId1 #get from vpc terraform
-          - !Ref PrivateSubNetId2 #get from vpc terraform
+      
   
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
