@@ -43,9 +43,9 @@ export class MySQLConnection {
     const config: MySQLConfig = {
       host: process.env.MYSQL_HOST || 'localhost',
       port: parseInt(process.env.MYSQL_PORT || '3306'),
-      database: process.env.MYSQL_DATABASE || 'bp_manager',
-      user: process.env.MYSQL_USER || 'root',
-      password: process.env.MYSQL_PASSWORD || '',
+      database: process.env.MYSQL_DATABASE || 'my_database',
+      user: process.env.MYSQL_USER || 'my_user',
+      password: process.env.MYSQL_PASSWORD || 'my_db_password',
       connectionLimit: 10,
       // timezone: process.env.MYSQL_TIMEZONE || '+09:00',
       waitForConnections: true,

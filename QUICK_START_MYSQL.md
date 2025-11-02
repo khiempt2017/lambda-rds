@@ -21,14 +21,14 @@ sh tools/migrate-mysql.sh
 Hoặc chạy thủ công:
 
 ```bash
-docker exec -i mysql mysql -u bp_user -pbp_password bp_manager < src-layers/database/migrations/mysql-schema.sql
+docker exec -i mysql mysql -u my_user -pmy_db_password my_database < src-layers/database/migrations/mysql-schema.sql
 ```
 
 ## Bước 3: Kiểm tra
 
 ```bash
 # Kết nối vào MySQL
-docker exec -it mysql mysql -u bp_user -pbp_password bp_manager
+docker exec -it mysql mysql -u my_user -pmy_db_password my_database
 
 # Xem danh sách bảng
 mysql> SHOW TABLES;
@@ -128,9 +128,9 @@ Chỉnh sửa trong `local.env.json`:
   "Parameters": {
     "MYSQL_HOST": "mysql",
     "MYSQL_PORT": "3306",
-    "MYSQL_DATABASE": "bp_manager",
-    "MYSQL_USER": "bp_user",
-    "MYSQL_PASSWORD": "bp_password",
+    "MYSQL_DATABASE": "my_database",
+    "MYSQL_USER": "my_user",
+    "MYSQL_PASSWORD": "my_db_password",
     "MYSQL_CONNECTION_LIMIT": "10",
     "MYSQL_TIMEZONE": "+09:00"
   }

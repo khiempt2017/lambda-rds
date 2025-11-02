@@ -10,9 +10,9 @@ echo "========================================="
 
 # Configuration
 MYSQL_CONTAINER="mysql"
-MYSQL_USER="bp_user"
-MYSQL_PASSWORD="bp_password"
-MYSQL_DATABASE="bp_manager"
+MYSQL_USER="my_user"
+MYSQL_PASSWORD="my_db_password"
+MYSQL_DATABASE="my_database"
 MIGRATION_FILE="src-layers/database/migrations/mysql-schema.sql"
 
 # Check if MySQL container is running

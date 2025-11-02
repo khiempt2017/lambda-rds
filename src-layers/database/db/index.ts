@@ -4,6 +4,5 @@
  * BP-api-serverless
  */
 
-export * from './aws-dynamo';
 export * from './mysql-connection';
 

@@ -102,7 +102,7 @@ To apply database migrations, run the following command:
 ```sh
 sh tools/migrate-mysql.sh
 ```
-chạy lệnh docker exec -it mysql mysql -u bp_user -p
+chạy lệnh docker exec -it mysql mysql -u my_user -p
 ### 4. Install DynamoDB Client
 
 ### 6. Deployment
