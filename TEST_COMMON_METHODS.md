@@ -172,7 +172,7 @@ Output: Array of 10 mail records
 
 ```bash
 # Connect to MySQL
-docker exec -it mysql mysql -u bp_user -pbp_password bp_manager
+docker exec -it mysql mysql -u my_user -pmy_db_password my_database
 
 # Check created record
 mysql> SELECT * FROM mails ORDER BY id DESC LIMIT 1;
@@ -231,7 +231,7 @@ docker logs mysql
 sh tools/migrate-mysql.sh
 
 # Verify tables
-docker exec -it mysql mysql -u bp_user -pbp_password bp_manager -e "SHOW TABLES;"
+docker exec -it mysql mysql -u my_user -pmy_db_password my_database -e "SHOW TABLES;"
 ```
 
 ### Error: Build failed

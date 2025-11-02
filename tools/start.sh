@@ -21,9 +21,6 @@ if [ ! -d "dist/src-layers/nodejs" ]; then
     mkdir dist/src-layers/nodejs
 fi
 
-
-# Copy all contents from 'src-layers/public' to 'dist/src-layers/public'
-cp -a src-layers/public/* dist/src-layers/public/
 cp -a src-layers/package*.json dist/src-layers/nodejs
 cd dist/src-layers/nodejs && npm install
 cd -

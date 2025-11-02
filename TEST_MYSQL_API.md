@@ -131,7 +131,7 @@ Invoke-WebRequest -Uri "http://127.0.0.1:3000/api/set_message_flg" -Method POST 
 
 ```bash
 # Kết nối vào MySQL
-docker exec -it mysql mysql -u bp_user -pbp_password bp_manager
+docker exec -it mysql mysql -u my_user -pmy_db_password my_database
 
 # Xem dữ liệu
 mysql> SELECT * FROM mails;
@@ -180,7 +180,7 @@ docker logs mysql
 sh tools/migrate-mysql.sh
 
 # Hoặc thủ công
-docker exec -i mysql mysql -u bp_user -pbp_password bp_manager < src-layers/database/migrations/mysql-schema.sql
+docker exec -i mysql mysql -u my_user -pmy_db_password my_database < src-layers/database/migrations/mysql-schema.sql
 ```
 
 ### Lỗi: Module not found

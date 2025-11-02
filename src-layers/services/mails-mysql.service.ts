@@ -18,19 +18,5 @@ export class MailsMySQLService extends BaseMySQLService<Mails> {
     this.mailsModel = mailsModel;
   }
 
-  /**
-   * Check if user is self based on user ID
-   * @param userId - The ID of the user
-   * @returns The mail record if found, null otherwise
-   */
-  public async checkUserIsSelf(userId: string): Promise<Mails | null> {
-    const mails = await this.mailsModel.findSelfMailsByUserId(userId);
-    
-    if (!mails || mails.length === 0) {
-      return null;
-    }
-
-    return mails[0];
-  }
 }
 
