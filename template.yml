@@ -81,48 +81,6 @@ Globals:
       ProjectId: !Ref ProjectId
       
 Resources:
-  # S3 Bucket for Image Uploads
-  # ImageUploadBucket:
-  #   Type: AWS::S3::Bucket
-  #   Properties:
-  #     BucketName: !Sub '${ProjectId}-${Stage}-image-uploads'
-  #     PublicAccessBlockConfiguration:
-  #       BlockPublicAcls: false
-  #       BlockPublicPolicy: false
-  #       IgnorePublicAcls: false
-  #       RestrictPublicBuckets: false
-  #     CorsConfiguration:
-  #       CorsRules:
-  #         - AllowedOrigins:
-  #             - '*'
-  #           AllowedMethods:
-  #             - GET
-  #             - PUT
-  #             - POST
-  #             - DELETE
-  #             - HEAD
-  #           AllowedHeaders:
-  #             - '*'
-  #           MaxAge: 3000
-  #     Tags:
-  #       - Key: Name
-  #         Value: !Sub '${ProjectId}-${Stage}-image-uploads'
-  #       - Key: Environment
-  #         Value: !Ref Stage
-
-  # # Bucket Policy to allow public read access
-  # ImageUploadBucketPolicy:
-  #   Type: AWS::S3::BucketPolicy
-  #   Properties:
-  #     Bucket: !Ref ImageUploadBucket
-  #     PolicyDocument:
-  #       Statement:
-  #         - Sid: PublicReadGetObject
-  #           Effect: Allow
-  #           Principal: '*'
-  #           Action: 's3:GetObject'
-  #           Resource: !Sub '${ImageUploadBucket.Arn}/*'
-
   ApiGwAccountConfig:
     Type: "AWS::ApiGateway::Account"
     Properties:
