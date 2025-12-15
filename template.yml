@@ -288,9 +288,3 @@ Outputs:
     Value: !Ref MyRestApi
     Export:
       Name: !Sub "${AWS::Region}-${Stage}-RestApiArn"
-  # ImageUploadBucketName:
-  #   Description: "S3 Bucket for image uploads"
-  #   Value: !Ref ImageUploadBucket
-  # ImageUploadBucketUrl:
-  #   Description: "S3 Bucket URL"
-  #   Value: !GetAtt ImageUploadBucket.WebsiteURL
