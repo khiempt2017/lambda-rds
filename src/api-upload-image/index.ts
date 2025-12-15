@@ -11,7 +11,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client, PutObjectCommand, HeadBucketCommand } from '@aws-sdk/client-s3';
 
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || '';
-const BUCKET_REGION = process.env.S3_BUCKET_REGION || process.env.REGION || 'ap-southeast-1';
+const BUCKET_REGION = 'ap-southeast-1';
 const FILE_NAME = 'pic.png'; // Hard-coded filename
 
 // Create S3 client with correct region
