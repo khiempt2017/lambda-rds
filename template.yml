@@ -68,6 +68,7 @@ Globals:
       Variables:
         STAGE: !Ref Stage
         REGION: !Ref AWS::Region
+        S3_BUCKET_NAME: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:BUCKET_NAME}}'
         MYSQL_HOST: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_HOST}}'
         MYSQL_PORT: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_PORT}}'
         MYSQL_DATABASE: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_DATABASE}}'
@@ -80,6 +81,48 @@ Globals:
       ProjectId: !Ref ProjectId
       
 Resources:
+  # S3 Bucket for Image Uploads
+  # ImageUploadBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: !Sub '${ProjectId}-${Stage}-image-uploads'
+  #     PublicAccessBlockConfiguration:
+  #       BlockPublicAcls: false
+  #       BlockPublicPolicy: false
+  #       IgnorePublicAcls: false
+  #       RestrictPublicBuckets: false
+  #     CorsConfiguration:
+  #       CorsRules:
+  #         - AllowedOrigins:
+  #             - '*'
+  #           AllowedMethods:
+  #             - GET
+  #             - PUT
+  #             - POST
+  #             - DELETE
+  #             - HEAD
+  #           AllowedHeaders:
+  #             - '*'
+  #           MaxAge: 3000
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub '${ProjectId}-${Stage}-image-uploads'
+  #       - Key: Environment
+  #         Value: !Ref Stage
+
+  # # Bucket Policy to allow public read access
+  # ImageUploadBucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     Bucket: !Ref ImageUploadBucket
+  #     PolicyDocument:
+  #       Statement:
+  #         - Sid: PublicReadGetObject
+  #           Effect: Allow
+  #           Principal: '*'
+  #           Action: 's3:GetObject'
+  #           Resource: !Sub '${ImageUploadBucket.Arn}/*'
+
   ApiGwAccountConfig:
     Type: "AWS::ApiGateway::Account"
     Properties:
@@ -177,6 +220,32 @@ Resources:
         SubnetIds:
           - !Ref PrivateSubNetId1 #get from vpc terraform
           - !Ref PrivateSubNetId2 #get from vpc terraform
+
+  UploadImage:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-upload-image'
+      CodeUri: ./dist/src/api-upload-image
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/upload-image
+            Method: post
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
     Type: AWS::IAM::Role
@@ -219,3 +288,9 @@ Outputs:
     Value: !Ref MyRestApi
     Export:
       Name: !Sub "${AWS::Region}-${Stage}-RestApiArn"
+  ImageUploadBucketName:
+    Description: "S3 Bucket for image uploads"
+    Value: !Ref ImageUploadBucket
+  ImageUploadBucketUrl:
+    Description: "S3 Bucket URL"
+    Value: !GetAtt ImageUploadBucket.WebsiteURL
