@@ -68,6 +68,7 @@ Globals:
       Variables:
         STAGE: !Ref Stage
         REGION: !Ref AWS::Region
+        APP_REGION: !Ref AWS::Region
         S3_BUCKET_NAME: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:BUCKET_NAME}}'
         MYSQL_HOST: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_HOST}}'
         MYSQL_PORT: !Sub '{{resolve:secretsmanager:${SecretManagerName}:SecretString:MYSQL_PORT}}'
