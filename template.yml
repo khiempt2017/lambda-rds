@@ -180,6 +180,32 @@ Resources:
           - !Ref PrivateSubNetId1 #get from vpc terraform
           - !Ref PrivateSubNetId2 #get from vpc terraform
 
+  DownLoadExcel:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectId}-${Stage}-api-download-excel'
+      CodeUri: ./dist/src/api-download-excel
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/download-excel
+            Method: post
+            RestApiId: !Ref MyRestApi
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref SecurityGroupId #get from vpc terraform
+        SubnetIds:
+          - !Ref PrivateSubNetId1 #get from vpc terraform
+          - !Ref PrivateSubNetId2 #get from vpc terraform
+
   UploadImage:
     Type: AWS::Serverless::Function
     Properties:
